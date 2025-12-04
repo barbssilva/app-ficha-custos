@@ -413,4 +413,5 @@ if __name__ == "__main__":
     except ValueError as e:
         print(e)
     
+
     os.remove(excel_entrada)
