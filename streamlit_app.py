@@ -8,4 +8,4 @@ st.set_page_config(
 )
 
 st.title("Main Page")
-st.sidebar.success(2Select a page above.")
+st.sidebar.success("Select a page above.")
