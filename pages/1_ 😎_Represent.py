@@ -1,5 +1,10 @@
 import streamlit as st
 import tempfile
+import pdfplumber
+import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.styles import Alignment, Border, Side, Font
+import openpyxl
 import os
 
 st.title("Represent")
