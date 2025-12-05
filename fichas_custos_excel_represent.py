@@ -393,24 +393,3 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
     return 
 
-"RUN CODE"
-if __name__ == "__main__":
-    #definir nome do ficheiro pdf
-    pdf_name = f'{sys.argv[1]}.pdf'
-
-    #definir o nome do ficheiro excel para o qual será transferida a informação do pdf
-    excel_entrada = f'{sys.argv[1]}.xlsx'
-
-    excel_saida = f'{sys.argv[1]}_tabela.xlsx'
-
-    #conversão de pdf para excel
-    pdf_to_excel(pdf_name,excel_entrada)
-
-
-    try:
-        trim_excel_before_marker(excel_entrada,excel_saida)
-    #se der erro, mostrar mensagem e continua o resto do código que está para a frente
-    except ValueError as e:
-        print(e)
-    
-    os.remove(excel_entrada)
