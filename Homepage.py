@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("Por favor, selecione o cliente!!")
+st.title("<<<<----- Por favor, selecione o cliente!!")
 
 st.set_page_config(
     page_title ="Multipage App",
@@ -8,4 +8,4 @@ st.set_page_config(
 )
 
 st.title("Main Page")
-st.sidebar.success("Select a page above.")
+st.sidebar.success("Selecione uma página acima")
