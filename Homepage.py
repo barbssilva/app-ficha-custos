@@ -5,5 +5,5 @@ st.set_page_config(
     page_icon="😁",
 )
 
-st.title("<-- Por favor, selecione o cliente!!")
+st.title("Bem vindo!! 😀")
 st.sidebar.success("Selecione uma página acima")
