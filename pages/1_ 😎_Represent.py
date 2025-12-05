@@ -7,3 +7,5 @@ ficha_custo = st.file_uploader(
     type=["pdf"],
     key="uploader_pdf"
 )
+
+
