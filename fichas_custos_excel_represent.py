@@ -10,32 +10,44 @@ A função pdf_to_excel lê o ficheiro pdf e converte-o para um ficheiro excel
 As páginas de pdf que são convertidas para excel são aquelas que contém tabelas com medidas
 '''
 def pdf_to_excel(nome_pdf,excel_name):
-    with pdfplumber.open(nome_pdf) as pdf:
+   with pdfplumber.open(nome_pdf) as pdf:
+        # Lista para guardar todas as tabelas de todas as páginas
+        todas_tabelas = []
 
-        with pd.ExcelWriter(excel_name, engine='xlsxwriter') as writer:
-            for i, page in enumerate(pdf.pages):
-                tables = page.extract_tables({
-                    "vertical_strategy": "lines",
-                    "horizontal_strategy": "lines"
-                })
+        for i, page in enumerate(pdf.pages):
+            tables = page.extract_tables({
+                "vertical_strategy": "lines",
+                "horizontal_strategy": "lines"
+            })
 
-                # Procurar a partir da tabela que contém "POM"
-                collected_tables = []
+            for table in tables:
+                df = pd.DataFrame(table).astype(str)
+                todas_tabelas.append(df)
 
-                for table in tables:
-                    df = pd.DataFrame(table).astype(str)
-                    collected_tables.append(df)
+        # Juntar todas as tabelas num único DataFrame
+        if todas_tabelas:
+            final_df = pd.DataFrame()
+            for df in todas_tabelas:
+                final_df = pd.concat([final_df, df, pd.DataFrame([[""] * len(df.columns)])], ignore_index=True)
 
-                # Só escreve no Excel se encontrou o "POM"
-                if collected_tables:
-                    # Juntar os DataFrames
-                    final_df = pd.DataFrame()
-                    for df in collected_tables:
-                        final_df = pd.concat([final_df, df, pd.DataFrame([[""] * len(df.columns)])], ignore_index=True)
+            # Procurar a linha onde a primeira coluna diz "Ponto de controlo"
+            mask = final_df.iloc[:, 0].str.strip().str.lower() == "ponto de control"
+            if mask.any():
+                idx = mask.idxmax()  # índice da primeira ocorrência
+                page_1_df = final_df.iloc[:idx, :]
+                page_2_df = final_df.iloc[idx:, :]
+            else:
+                page_1_df = final_df
+                page_2_df = pd.DataFrame(columns=final_df.columns)
 
-                    final_df.to_excel(writer, sheet_name=f'Page_{i+1}', index=False, header=False)
+            # Escrever no Excel
+            with pd.ExcelWriter(excel_name, engine='xlsxwriter') as writer:
+                page_1_df.to_excel(writer, sheet_name='Page_1', index=False, header=False)
+                page_2_df.to_excel(writer, sheet_name='Page_2', index=False, header=False)
+    
 
         return 
+
     
 # ...existing code...
 def trim_excel_before_marker(excel_path,excel_saida):
@@ -63,7 +75,15 @@ def trim_excel_before_marker(excel_path,excel_saida):
     if not mask.any():
         #para de correr o código caso não econtre "Malhas e Tecidos"
         raise ValueError(f"'{marker}' não encontrado na primeira folha do excel.")
-    
+
+
+    # linha onde está código
+    #marker_codigo = "código"
+    #mask_codigo= first_col.eq(marker_codigo.lower())
+    #codigo_idx = mask_codigo.idxmax()
+    #linha = pd.DataFrame([df.iloc[codigo_idx, :].str.strip().str.lower()])
+
+
     """
     
     preparar excel
@@ -107,10 +127,32 @@ def trim_excel_before_marker(excel_path,excel_saida):
     #devolve um df com as linhas a partir de "Malhas e Tecidos" e redefine a numeração dos indices
     trimmed = df.iloc[first_idx:].reset_index(drop=True)
 
-    #filtrar pelas linhas cuja coluna "C" tem "SORTIMENTO"
+    #filtrar pelas linhas cuja coluna "C" tem "SORTIMENTO" e as que tem "KG" na coluna Un
     col_c = trimmed.iloc[:, 2].str.strip().str.lower()
     mask_sortimento = col_c.str.contains("sortimento", na=False)
-    filtered_df = trimmed[mask_sortimento].reset_index(drop=True)
+    #df_trimmed = trimmed[mask_sortimento].reset_index(drop=True)
+
+    # Encontrar índices da primeira e última ocorrência
+    if mask_sortimento.any():
+        first_idx = mask_sortimento.idxmax()          # primeira ocorrência
+        last_idx = mask_sortimento[::-1].idxmax()     # última ocorrência
+        df_trimmed = trimmed.loc[first_idx:last_idx].reset_index(drop=True)
+    else:
+        df_trimmed = pd.DataFrame(columns=trimmed.columns)  # caso não haja "sortimento"
+    
+    col_kg = df_trimmed.iloc[:, 3].str.strip().str.lower()
+    mask_kg = col_kg.str.contains("kg", na=False)
+    filtered_df = df_trimmed[mask_kg].reset_index(drop=True)
+
+    def is_vazio(x):
+        return x is None or (isinstance(x, str) and x.strip() in ("", "None"))
+
+    # Identificar colunas totalmente vazias
+    colunas_para_remover = [col for col in filtered_df.columns if all(is_vazio(x) for x in filtered_df[col])]
+
+    # Remover colunas vazias
+    filtered_df = filtered_df.drop(columns=colunas_para_remover)
+
 
     # Na coluna A (índice 0), contar cells não vazias
     col_a = filtered_df.iloc[:, 0].str.strip()  
@@ -129,23 +171,24 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
     for i in range(0,len(malha_indices)):
         if i < len(malha_indices)-1:
-            consumo=pd.to_numeric(filtered_df.iloc[malha_indices[i], 4], errors='coerce')
+            consumo=pd.to_numeric(filtered_df.iloc[malha_indices[i], -3], errors='coerce')
             consumos_malha.append(consumo)
             nome_malhas.append(filtered_df.iloc[malha_indices[i], 0])
-            soma1=pd.to_numeric(filtered_df.iloc[malha_indices[i]:malha_indices[i+1], 6], errors='coerce').sum()
+            soma1=pd.to_numeric(filtered_df.iloc[malha_indices[i]:malha_indices[i+1], -1], errors='coerce').sum()
             malha_precos_original.append(soma1)
             malhas_precos_margem.append(soma1*percent_value)
             soma1 = soma1*(1+percent_value)
             malhas_precos_final.append(soma1)
         else:
-            consumo=pd.to_numeric(filtered_df.iloc[malha_indices[i], 4], errors='coerce')
+            consumo=pd.to_numeric(filtered_df.iloc[malha_indices[i], -3], errors='coerce')
             consumos_malha.append(consumo)
             nome_malhas.append(filtered_df.iloc[malha_indices[i], 0])
-            soma1=pd.to_numeric(filtered_df.iloc[malha_indices[i]:ultima_linha+1, 6], errors='coerce').sum()
+            soma1=pd.to_numeric(filtered_df.iloc[malha_indices[i]:ultima_linha+1, -1], errors='coerce').sum()
             malha_precos_original.append(soma1)
             malhas_precos_margem.append(soma1*percent_value)
             soma1 = soma1*(1+percent_value)
             malhas_precos_final.append(soma1)
+
 
     # Criar lista de tuplos com (indice, consumo, preco)
     dados_malhas = list(zip(malha_indices,nome_malhas, consumos_malha, malha_precos_original, malhas_precos_margem,malhas_precos_final))
@@ -178,8 +221,59 @@ def trim_excel_before_marker(excel_path,excel_saida):
         linha_malha.append("")  # desconto
         linha_malha.append(dados_malhas_sorted[i][5])  # preço após aplicar a margem
         linhas_excel.append(linha_malha)
-
     
+
+    # Supondo que col_kg é a coluna com strings
+    mask_nao_kg = ~col_kg.str.contains("kg", na=False)  # NOT "kg"
+
+    # Filtrar DataFrame com essa condição
+    filtered_df2 = df_trimmed[mask_nao_kg].reset_index(drop=True)
+
+    # Identificar colunas totalmente vazias
+    colunas_para_remover = [col for col in filtered_df2.columns if all(is_vazio(x) for x in filtered_df2[col])]
+
+    # Remover colunas vazias
+    filtered_df2 = filtered_df2.drop(columns=colunas_para_remover)
+
+    # Verificar se o DataFrame ficou vazio
+    if not filtered_df2.empty:
+        # Na coluna A (índice 0), contar cells não vazias
+        col1 = filtered_df2.iloc[:, 0].str.strip()  
+        malha_indices2 = col1[col1 != ""].index.tolist()
+        #indice da ultima linha do excel 
+        ultima_linha2 = len(filtered_df2) - 1
+
+        for i in range(0,len(malha_indices2)):
+            if i < len(malha_indices2)-1:
+                linha_inf = []
+                linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
+                linha_inf.append(f"Other ({filtered_df2.iloc[malha_indices2[i],1]})")  # main fabric, 2nd fabric, etc
+                consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
+                linha_inf.append(consumo)  # consumo
+                soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:malha_indices2[i+1], -1], errors='coerce').sum()
+                linha_inf.append(soma1)  # preço antes de aplicar a margem
+                linha_inf.append(soma1*percent_value)  # valor da margem
+                linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
+                linha_inf.append("")  # desconto
+                linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
+                linhas_excel.append(linha_inf)
+            else:
+                linha_inf = []
+                linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
+                linha_inf.append(f"Other ({filtered_df2.iloc[malha_indices2[i],1]})")  # main fabric, 2nd fabric, etc
+                consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
+                linha_inf.append(consumo)  # consumo
+                soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:ultima_linha2+1, -1], errors='coerce').sum()
+                linha_inf.append(soma1)  # preço antes de aplicar a margem
+                linha_inf.append(soma1*percent_value)  # valor da margem
+                linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
+                linha_inf.append("")  # desconto
+                linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
+                linhas_excel.append(linha_inf)
+
+
+
+
     """
     FIM DE - Obter o consumo e preço por malha e definir main fabric, 2nd fabric, etc
 
@@ -192,7 +286,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     """
 
     # CMT (MANIFACTURING COST)
-    markers_cmt = ["corte", "confecção", "embalamento"]
+    markers_cmt = ["corte", "confecção", "embalamento", "linhas"]
     indices_cmt = []
     for marker in markers_cmt:
         mask_cmt = first_col2.eq(marker.lower())
@@ -392,4 +486,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
 
     return 
+
+
+    return 
+
 
