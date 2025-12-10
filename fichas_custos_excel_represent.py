@@ -125,153 +125,263 @@ def trim_excel_before_marker(excel_path,excel_saida):
     #devolve o indice da primeira ocorrência de "Malhas e Tecidos"
     first_idx = mask.idxmax()
     #devolve um df com as linhas a partir de "Malhas e Tecidos" e redefine a numeração dos indices
-    trimmed = df.iloc[first_idx:].reset_index(drop=True)
+    df_trimmed = df.iloc[first_idx:].reset_index(drop=True)
 
     #filtrar pelas linhas cuja coluna "C" tem "SORTIMENTO" e as que tem "KG" na coluna Un
-    col_c = trimmed.iloc[:, 2].str.strip().str.lower()
-    mask_sortimento = col_c.str.contains("sortimento", na=False)
+    #col_c = trimmed.iloc[:, 2].str.strip().str.lower()
+    #mask_sortimento = col_c.str.contains("sortimento", na=False)
     #df_trimmed = trimmed[mask_sortimento].reset_index(drop=True)
 
     # Encontrar índices da primeira e última ocorrência
-    if mask_sortimento.any():
-        first_idx = mask_sortimento.idxmax()          # primeira ocorrência
-        last_idx = mask_sortimento[::-1].idxmax()     # última ocorrência
-        df_trimmed = trimmed.loc[first_idx:last_idx].reset_index(drop=True)
-    else:
-        df_trimmed = pd.DataFrame(columns=trimmed.columns)  # caso não haja "sortimento"
+    #if mask_sortimento.any():
+    #    first_idx = mask_sortimento.idxmax()          # primeira ocorrência
+    #    last_idx = mask_sortimento[::-1].idxmax()     # última ocorrência
+    #    df_trimmed = trimmed.loc[first_idx:last_idx].reset_index(drop=True)
+    #else:
+    #    df_trimmed = pd.DataFrame(columns=trimmed.columns)  # caso não haja "sortimento"
+
     
     col_kg = df_trimmed.iloc[:, 3].str.strip().str.lower()
+
+
+    mask_unidades = (col_kg == 'un')| (col_kg == 'kg') | (col_kg == 'mt')
+    df_trimmed = df_trimmed[mask_unidades].reset_index(drop=True)
+    print(df_trimmed)
+
+    col_kg = df_trimmed.iloc[:, 3].str.strip().str.lower()
+
+
     mask_kg = col_kg.str.contains("kg", na=False)
     filtered_df = df_trimmed[mask_kg].reset_index(drop=True)
 
     def is_vazio(x):
         return x is None or (isinstance(x, str) and x.strip() in ("", "None"))
-
-    # Identificar colunas totalmente vazias
-    colunas_para_remover = [col for col in filtered_df.columns if all(is_vazio(x) for x in filtered_df[col])]
-
-    # Remover colunas vazias
-    filtered_df = filtered_df.drop(columns=colunas_para_remover)
-
-
-    # Na coluna A (índice 0), contar cells não vazias
-    col_a = filtered_df.iloc[:, 0].str.strip()  
-    malha_indices = col_a[col_a != ""].index.tolist()
-
-
-    #indice da ultima linha do excel 
-    ultima_linha = len(filtered_df) - 1
-
-    #guardar os consumos e preços por malha antes e apos aplicar a margem
-    consumos_malha=[]
-    malha_precos_original=[]
-    malhas_precos_margem=[]
-    malhas_precos_final=[]
-    nome_malhas=[]
-
-    for i in range(0,len(malha_indices)):
-        if i < len(malha_indices)-1:
-            consumo=pd.to_numeric(filtered_df.iloc[malha_indices[i], -3], errors='coerce')
-            consumos_malha.append(consumo)
-            nome_malhas.append(filtered_df.iloc[malha_indices[i], 0])
-            soma1=pd.to_numeric(filtered_df.iloc[malha_indices[i]:malha_indices[i+1], -1], errors='coerce').sum()
-            malha_precos_original.append(soma1)
-            malhas_precos_margem.append(soma1*percent_value)
-            soma1 = soma1*(1+percent_value)
-            malhas_precos_final.append(soma1)
-        else:
-            consumo=pd.to_numeric(filtered_df.iloc[malha_indices[i], -3], errors='coerce')
-            consumos_malha.append(consumo)
-            nome_malhas.append(filtered_df.iloc[malha_indices[i], 0])
-            soma1=pd.to_numeric(filtered_df.iloc[malha_indices[i]:ultima_linha+1, -1], errors='coerce').sum()
-            malha_precos_original.append(soma1)
-            malhas_precos_margem.append(soma1*percent_value)
-            soma1 = soma1*(1+percent_value)
-            malhas_precos_final.append(soma1)
-
-
-    # Criar lista de tuplos com (indice, consumo, preco)
-    dados_malhas = list(zip(malha_indices,nome_malhas, consumos_malha, malha_precos_original, malhas_precos_margem,malhas_precos_final))
-
-    # Ordenar malha_indices por ordem crescente dos valores na coluna E (índice 4)
-    col_e = pd.to_numeric(filtered_df.iloc[:, 4], errors='coerce')
-    # Ordenar pelo valor na coluna E correspondente a cada indice (x[0] no codigo corresponde ao indice da malha que está em cada tuplo)
-    dados_malhas_sorted = sorted(dados_malhas, key=lambda x: col_e.iloc[x[0]], reverse=True)
-
-
-    # Contar malhas diferentes
-    num_malhas = len(dados_malhas_sorted)
     
-    fabrics =["Main fabric","2nd fabric","3rd fabric","4th fabric","5th fabric","6th fabric"]
-    # Criar lista de nomes
-    fabric_names = []
-    if num_malhas >= 1:
-        fabric_names.append(fabrics[0])
-    for i in range(1, num_malhas):
-        fabric_names.append(fabrics[i])
+    # Filtrar DataFrame com essa condição
+    filtered_df2 = filtered_df
 
-    for i in range(0, num_malhas):
-        linha_malha = []
-        linha_malha.append(dados_malhas_sorted[i][1])  # nome da malha
-        linha_malha.append(fabric_names[i])  # main fabric, 2nd fabric, etc
-        linha_malha.append(dados_malhas_sorted[i][2])  # consumo
-        linha_malha.append(dados_malhas_sorted[i][3])  # preço antes de aplicar a margem
-        linha_malha.append(dados_malhas_sorted[i][4])  # valor da margem
-        linha_malha.append("")  # distribuição margem corte + (acessórios*perc)
-        linha_malha.append("")  # desconto
-        linha_malha.append(dados_malhas_sorted[i][5])  # preço após aplicar a margem
-        linhas_excel.append(linha_malha)
+    if not filtered_df2.empty and filtered_df2.shape[1] > 0:
+        # Identificar colunas totalmente vazias
+        colunas_para_remover = [col for col in filtered_df2.columns if all(is_vazio(x) for x in filtered_df2[col])]
+
+        # Remover colunas vazias
+        filtered_df2 = filtered_df2.drop(columns=colunas_para_remover)
+
+        # Verificar se o DataFrame ficou vazio
+        if not filtered_df2.empty:
+            # Na coluna A (índice 0), contar cells não vazias
+            col1 = filtered_df2.iloc[:, 0].str.strip()  
+            malha_indices2 = col1[col1 != ""].index.tolist()
+            #indice da ultima linha do excel 
+            ultima_linha2 = len(filtered_df2) - 1
+
+            for i in range(0,len(malha_indices2)):
+                if i < len(malha_indices2)-1:
+                    linha_inf = []
+                    linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
+                    linha_inf.append(f"{filtered_df2.iloc[malha_indices2[i],1]}")  # main fabric, 2nd fabric, etc
+                    consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
+                    linha_inf.append(consumo)  # consumo
+                    soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:malha_indices2[i+1], -1], errors='coerce').sum()
+                    linha_inf.append(soma1)  # preço antes de aplicar a margem
+                    linha_inf.append(soma1*percent_value)  # valor da margem
+                    linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
+                    linha_inf.append("")  # desconto
+                    linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
+                    linhas_excel.append(linha_inf)
+                else:
+                    linha_inf = []
+                    linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
+                    linha_inf.append(f"{filtered_df2.iloc[malha_indices2[i],1]}")  # main fabric, 2nd fabric, etc
+                    consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
+                    linha_inf.append(consumo)  # consumo
+                    soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:ultima_linha2+1, -1], errors='coerce').sum()
+                    linha_inf.append(soma1)  # preço antes de aplicar a margem
+                    linha_inf.append(soma1*percent_value)  # valor da margem
+                    linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
+                    linha_inf.append("")  # desconto
+                    linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
+                    linhas_excel.append(linha_inf)
+    
     
 
-    # Supondo que col_kg é a coluna com strings
-    mask_nao_kg = ~col_kg.str.contains("kg", na=False)  # NOT "kg"
+    """
+    if not filtered_df.empty and filtered_df.shape[1] > 0:
+        # Identificar colunas totalmente vazias
+        colunas_para_remover = [col for col in filtered_df.columns if all(is_vazio(x) for x in filtered_df[col])]
+
+        # Remover colunas vazias
+        filtered_df = filtered_df.drop(columns=colunas_para_remover)
+
+        # Na coluna A (índice 0), contar cells não vazias
+        col_a = filtered_df.iloc[:, 0].str.strip()  
+        malha_indices = col_a[col_a != ""].index.tolist()
+
+
+        #indice da ultima linha do excel 
+        ultima_linha = len(filtered_df) - 1
+
+        #guardar os consumos e preços por malha antes e apos aplicar a margem
+        consumos_malha=[]
+        malha_precos_original=[]
+        malhas_precos_margem=[]
+        malhas_precos_final=[]
+        nome_malhas=[]
+
+        for i in range(0,len(malha_indices)):
+            if i < len(malha_indices)-1:
+                consumo=pd.to_numeric(filtered_df.iloc[malha_indices[i], -3], errors='coerce')
+                consumos_malha.append(consumo)
+                nome_malhas.append(filtered_df.iloc[malha_indices[i], 0])
+                soma1=pd.to_numeric(filtered_df.iloc[malha_indices[i]:malha_indices[i+1], -1], errors='coerce').sum()
+                malha_precos_original.append(soma1)
+                malhas_precos_margem.append(soma1*percent_value)
+                soma1 = soma1*(1+percent_value)
+                malhas_precos_final.append(soma1)
+            else:
+                consumo=pd.to_numeric(filtered_df.iloc[malha_indices[i], -3], errors='coerce')
+                consumos_malha.append(consumo)
+                nome_malhas.append(filtered_df.iloc[malha_indices[i], 0])
+                soma1=pd.to_numeric(filtered_df.iloc[malha_indices[i]:ultima_linha+1, -1], errors='coerce').sum()
+                malha_precos_original.append(soma1)
+                malhas_precos_margem.append(soma1*percent_value)
+                soma1 = soma1*(1+percent_value)
+                malhas_precos_final.append(soma1)
+
+
+        # Criar lista de tuplos com (indice, consumo, preco)
+        dados_malhas = list(zip(malha_indices,nome_malhas, consumos_malha, malha_precos_original, malhas_precos_margem,malhas_precos_final))
+
+        # Ordenar malha_indices por ordem crescente dos valores na coluna E (índice 4)
+        col_e = pd.to_numeric(filtered_df.iloc[:, 4], errors='coerce')
+        # Ordenar pelo valor na coluna E correspondente a cada indice (x[0] no codigo corresponde ao indice da malha que está em cada tuplo)
+        dados_malhas_sorted = sorted(dados_malhas, key=lambda x: col_e.iloc[x[0]], reverse=True)
+
+
+        # Contar malhas diferentes
+        num_malhas = len(dados_malhas_sorted)
+        
+        fabrics =["Main fabric","2nd fabric","3rd fabric","4th fabric","5th fabric","6th fabric"]
+        # Criar lista de nomes
+        fabric_names = []
+        if num_malhas >= 1:
+            fabric_names.append(fabrics[0])
+        for i in range(1, num_malhas):
+            fabric_names.append(fabrics[i])
+
+        for i in range(0, num_malhas):
+            linha_malha = []
+            linha_malha.append(dados_malhas_sorted[i][1])  # nome da malha
+            linha_malha.append(fabric_names[i])  # main fabric, 2nd fabric, etc
+            linha_malha.append(dados_malhas_sorted[i][2])  # consumo
+            linha_malha.append(dados_malhas_sorted[i][3])  # preço antes de aplicar a margem
+            linha_malha.append(dados_malhas_sorted[i][4])  # valor da margem
+            linha_malha.append("")  # distribuição margem corte + (acessórios*perc)
+            linha_malha.append("")  # desconto
+            linha_malha.append(dados_malhas_sorted[i][5])  # preço após aplicar a margem
+            linhas_excel.append(linha_malha)
+        
+    """
+
+    #para "Un"
+    mask_nao_kg = col_kg.str.contains("un", na=False)  # NOT "kg"
 
     # Filtrar DataFrame com essa condição
     filtered_df2 = df_trimmed[mask_nao_kg].reset_index(drop=True)
 
-    # Identificar colunas totalmente vazias
-    colunas_para_remover = [col for col in filtered_df2.columns if all(is_vazio(x) for x in filtered_df2[col])]
+    if not filtered_df2.empty and filtered_df2.shape[1] > 0:
+        # Identificar colunas totalmente vazias
+        colunas_para_remover = [col for col in filtered_df2.columns if all(is_vazio(x) for x in filtered_df2[col])]
 
-    # Remover colunas vazias
-    filtered_df2 = filtered_df2.drop(columns=colunas_para_remover)
+        # Remover colunas vazias
+        filtered_df2 = filtered_df2.drop(columns=colunas_para_remover)
 
-    # Verificar se o DataFrame ficou vazio
-    if not filtered_df2.empty:
-        # Na coluna A (índice 0), contar cells não vazias
-        col1 = filtered_df2.iloc[:, 0].str.strip()  
-        malha_indices2 = col1[col1 != ""].index.tolist()
-        #indice da ultima linha do excel 
-        ultima_linha2 = len(filtered_df2) - 1
+        # Verificar se o DataFrame ficou vazio
+        if not filtered_df2.empty:
+            # Na coluna A (índice 0), contar cells não vazias
+            col1 = filtered_df2.iloc[:, 0].str.strip()  
+            malha_indices2 = col1[col1 != ""].index.tolist()
+            #indice da ultima linha do excel 
+            ultima_linha2 = len(filtered_df2) - 1
 
-        for i in range(0,len(malha_indices2)):
-            if i < len(malha_indices2)-1:
-                linha_inf = []
-                linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
-                linha_inf.append(f"Other ({filtered_df2.iloc[malha_indices2[i],1]})")  # main fabric, 2nd fabric, etc
-                consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
-                linha_inf.append(consumo)  # consumo
-                soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:malha_indices2[i+1], -1], errors='coerce').sum()
-                linha_inf.append(soma1)  # preço antes de aplicar a margem
-                linha_inf.append(soma1*percent_value)  # valor da margem
-                linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
-                linha_inf.append("")  # desconto
-                linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
-                linhas_excel.append(linha_inf)
-            else:
-                linha_inf = []
-                linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
-                linha_inf.append(f"Other ({filtered_df2.iloc[malha_indices2[i],1]})")  # main fabric, 2nd fabric, etc
-                consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
-                linha_inf.append(consumo)  # consumo
-                soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:ultima_linha2+1, -1], errors='coerce').sum()
-                linha_inf.append(soma1)  # preço antes de aplicar a margem
-                linha_inf.append(soma1*percent_value)  # valor da margem
-                linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
-                linha_inf.append("")  # desconto
-                linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
-                linhas_excel.append(linha_inf)
+            for i in range(0,len(malha_indices2)):
+                if i < len(malha_indices2)-1:
+                    linha_inf = []
+                    linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
+                    linha_inf.append(f"{filtered_df2.iloc[malha_indices2[i],1]}")  # main fabric, 2nd fabric, etc
+                    consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
+                    linha_inf.append(consumo)  # consumo
+                    soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:malha_indices2[i+1], -1], errors='coerce').sum()
+                    linha_inf.append(soma1)  # preço antes de aplicar a margem
+                    linha_inf.append(soma1*percent_value)  # valor da margem
+                    linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
+                    linha_inf.append("")  # desconto
+                    linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
+                    linhas_excel.append(linha_inf)
+                else:
+                    linha_inf = []
+                    linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
+                    linha_inf.append(f"{filtered_df2.iloc[malha_indices2[i],1]}")  # main fabric, 2nd fabric, etc
+                    consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
+                    linha_inf.append(consumo)  # consumo
+                    soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:ultima_linha2+1, -1], errors='coerce').sum()
+                    linha_inf.append(soma1)  # preço antes de aplicar a margem
+                    linha_inf.append(soma1*percent_value)  # valor da margem
+                    linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
+                    linha_inf.append("")  # desconto
+                    linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
+                    linhas_excel.append(linha_inf)
+    
 
+    "para mt"
+        # Supondo que col_kg é a coluna com strings
+    mask_nao_kg = col_kg.str.contains("mt", na=False)  # NOT "kg"
 
+    # Filtrar DataFrame com essa condição
+    filtered_df2 = df_trimmed[mask_nao_kg].reset_index(drop=True)
+
+    if not filtered_df2.empty and filtered_df2.shape[1] > 0:
+        # Identificar colunas totalmente vazias
+        colunas_para_remover = [col for col in filtered_df2.columns if all(is_vazio(x) for x in filtered_df2[col])]
+
+        # Remover colunas vazias
+        filtered_df2 = filtered_df2.drop(columns=colunas_para_remover)
+
+        # Verificar se o DataFrame ficou vazio
+        if not filtered_df2.empty:
+            # Na coluna A (índice 0), contar cells não vazias
+            col1 = filtered_df2.iloc[:, 0].str.strip()  
+            malha_indices2 = col1[col1 != ""].index.tolist()
+            #indice da ultima linha do excel 
+            ultima_linha2 = len(filtered_df2) - 1
+
+            for i in range(0,len(malha_indices2)):
+                if i < len(malha_indices2)-1:
+                    linha_inf = []
+                    linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
+                    linha_inf.append(f"{filtered_df2.iloc[malha_indices2[i],1]}")  # main fabric, 2nd fabric, etc
+                    consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
+                    linha_inf.append(consumo)  # consumo
+                    soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:malha_indices2[i+1], -1], errors='coerce').sum()
+                    linha_inf.append(soma1)  # preço antes de aplicar a margem
+                    linha_inf.append(soma1*percent_value)  # valor da margem
+                    linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
+                    linha_inf.append("")  # desconto
+                    linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
+                    linhas_excel.append(linha_inf)
+                else:
+                    linha_inf = []
+                    linha_inf.append(filtered_df2.iloc[malha_indices2[i],0])  # nome da malha
+                    linha_inf.append(f"{filtered_df2.iloc[malha_indices2[i],1]}")  # main fabric, 2nd fabric, etc
+                    consumo=pd.to_numeric(filtered_df2.iloc[malha_indices2[i], -3], errors='coerce')
+                    linha_inf.append(consumo)  # consumo
+                    soma1=pd.to_numeric(filtered_df2.iloc[malha_indices2[i]:ultima_linha2+1, -1], errors='coerce').sum()
+                    linha_inf.append(soma1)  # preço antes de aplicar a margem
+                    linha_inf.append(soma1*percent_value)  # valor da margem
+                    linha_inf.append("")  # distribuição margem corte + (acessórios*perc)
+                    linha_inf.append("")  # desconto
+                    linha_inf.append(soma1*(1+percent_value))  # preço após aplicar a margem
+                    linhas_excel.append(linha_inf)
 
 
     """
@@ -486,8 +596,3 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
 
     return 
-
-
-    return 
-
-
