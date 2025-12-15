@@ -15,7 +15,7 @@ uploaded_file = st.file_uploader(
     key="uploader_pdf"
 )
 
-from fichas_custos_excel_represent import trim_excel_before_marker, pdf_to_excel
+from fichas_custos_excel_represent import trim_excel_before_marker, pdf_to_excel, add_images
         
 if uploaded_file is not None:
     base_name = os.path.splitext(uploaded_file.name)[0]
