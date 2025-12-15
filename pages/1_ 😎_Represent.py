@@ -35,9 +35,11 @@ if uploaded_file is not None:
     placeholder = st.empty()
     placeholder.info("⏳ Por favor aguarde...")
 
-    pdf_to_excel(temp_pdf_path,excel_entrada)
+    ref_text, name_text = pdf_to_excel(temp_pdf_path,excel_entrada)
+    inf_texto = [f"Ref: {ref_text}",name_text]
 
     trim_excel_before_marker(excel_entrada,excel_saida)
+    add_images(temp_pdf_path,excel_saida,inf_texto)
 
     placeholder.empty()
     st.success("Processo terminado!")
