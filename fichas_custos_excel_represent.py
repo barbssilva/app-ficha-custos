@@ -436,10 +436,9 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
         for row in sheet.iter_rows():
             for cell in row:
-                cell.font = Font(size=14)  # Tamanho da letra 14
-                cell.alignment = Alignment(wrap_text=True, horizontal='center', vertical='center')
-                #if cell.column >= start_col_idx:  # Apenas células a partir da coluna 'D'
-                #    cell.alignment = Alignment(horizontal='center', vertical='center')
+                cell.font = Font(size=12)  # Tamanho da letra 14
+                cell.alignment = Alignment(wrap_text=True, horizontal='center', vertical='top')
+
 
         # Definir a espessura da borda
         border_style = Border(
@@ -522,4 +521,5 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
+
 
