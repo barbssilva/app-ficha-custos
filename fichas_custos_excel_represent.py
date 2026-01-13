@@ -5,6 +5,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Border, Side, Font
 import openpyxl
 import os
+import streamlit as st
 
 from openpyxl.drawing.image import Image as ExcelImage
 from PIL import Image
@@ -524,6 +525,7 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
+
 
 
 
