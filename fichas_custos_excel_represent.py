@@ -255,7 +255,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         mask_cmt = first_col2.eq(marker.lower())
         if not mask_cmt.any():
             markers_cmt.remove(marker)
-            print(f"Atenção: '{marker}' não encontrado na tabela de Ponto de Control. Não será considerado no custo CMT")
+            #print(f"Atenção: '{marker}' não encontrado na tabela de Ponto de Control. Não será considerado no custo CMT")
             continue
             #raise ValueError(f"'{marker}' não encontrado na segunda folha do excel.")
         cmt_idx = mask_cmt.idxmax()
@@ -524,6 +524,7 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
+
 
 
 
