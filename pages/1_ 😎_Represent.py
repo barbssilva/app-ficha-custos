@@ -22,11 +22,11 @@ uploaded_files = st.file_uploader(
 
 if uploaded_files:
     if len(uploaded_files) == 1:
-        base_name = os.path.splitext(uploaded_file.name)[0]
+        base_name = os.path.splitext(uploaded_files.name)[0]
             
         # Criar ficheiro PDF temporário
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
-            temp_pdf.write(uploaded_file.read())
+            temp_pdf.write(uploaded_files.read())
             temp_pdf_path = temp_pdf.name
     
         # Agora cria o excel_entrada e excel_saida no mesmo diretório do ficheiro temporário,
