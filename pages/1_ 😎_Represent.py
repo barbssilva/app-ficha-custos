@@ -11,6 +11,8 @@ import zipfile
 
 st.title("Represent")
 
+from fichas_custos_excel_represent import trim_excel_before_marker, pdf_to_excel, add_images
+
 uploaded_files = st.file_uploader(
     "Por favor, carregue os ficheiros pdf.",
     type=["pdf"],
