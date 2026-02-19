@@ -6,6 +6,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Border, Side, Font
 import openpyxl
 import os
+from io import BytesIO
 
 st.title("Represent")
 
