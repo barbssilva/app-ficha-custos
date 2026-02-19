@@ -13,6 +13,8 @@ st.title("Represent")
 
 from fichas_custos_excel_represent import trim_excel_before_marker, pdf_to_excel, add_images
 
+st.write("Pode carregar vários ficheiros pdf de uma só vez, no fim fará download de um ficheiro .zip com todos os ficheiros excel")
+
 uploaded_files = st.file_uploader(
     "Por favor, carregue os ficheiros pdf.",
     type=["pdf"],
