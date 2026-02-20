@@ -147,8 +147,6 @@ def pdf_to_excel(nome_pdf,excel_name):
 
         return ref_text, name_text
 
-
-# ...existing code...
 def trim_excel_before_marker(excel_path,excel_saida):
 
     """
@@ -559,10 +557,6 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
-
-
-
-
 
 
 
