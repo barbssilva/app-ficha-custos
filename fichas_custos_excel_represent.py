@@ -47,12 +47,12 @@ def extract_sections_from_text(text):
     if len(split1) != 1:
         ref = split1[1].split("ANGLOTEX - CONFECÇÕES, LDA.")[0]
     else:
-        ref = "referencia não encontrada, por favor adicionar manualmente"
+        ref = "ND"
     split2 = text.split("ANGLOTEX - CONFECÇÕES, LDA.")
     if len(split2) != 1:
         name = split2[1].split("Matéria")[0]
     else:
-        name  = "modelo não encontrado, por favor adicionar manualmente"
+        name  = "ND"
     return ref.strip(), name.strip()
 
 def pdf_to_excel(nome_pdf,excel_name):
@@ -557,6 +557,7 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
+
 
 
 
