@@ -36,7 +36,7 @@ if uploaded_files:
             # mas com nomes baseados no ficheiro original:
             temp_dir = os.path.dirname(temp_pdf_path)
             excel_entrada = os.path.join(temp_dir, base_name + ".xlsx")
-            excel_saida = os.path.join(temp_dir,"tabela_custos.xlsx")
+            #excel_saida = os.path.join(temp_dir,"tabela_custos.xlsx")
         
         
             placeholder = st.empty()
@@ -44,6 +44,7 @@ if uploaded_files:
         
             ref_text, name_text = pdf_to_excel(temp_pdf_path,excel_entrada)
             inf_texto = [f"Ref: {ref_text}",name_text]
+            excel_saida = os.path.join(temp_dir,f"tabela_custos_ref_{ref_tex}.xlsx")
         
             trim_excel_before_marker(excel_entrada,excel_saida)
             add_images(temp_pdf_path,excel_saida,inf_texto)
@@ -77,11 +78,12 @@ if uploaded_files:
     
                 temp_dir = os.path.dirname(temp_pdf_path)
                 excel_entrada = os.path.join(temp_dir, base_name + ".xlsx")
-                excel_saida = os.path.join(temp_dir, base_name + "_processado.xlsx")
+                #excel_saida = os.path.join(temp_dir, base_name + "_processado.xlsx")
     
                 # Processamento
                 ref_text, name_text = pdf_to_excel(temp_pdf_path, excel_entrada)
                 inf_texto = [f"Ref: {ref_text}", name_text]
+                excel_saida = os.path.join(temp_dir,f"tabela_custos_ref_{ref_tex}.xlsx")
     
                 trim_excel_before_marker(excel_entrada, excel_saida)
                 add_images(temp_pdf_path, excel_saida, inf_texto)
