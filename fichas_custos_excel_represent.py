@@ -84,11 +84,13 @@ def pdf_to_excel(nome_pdf,excel_name):
             mask3 = final_df.iloc[:, 0].str.strip().str.lower() == "malhas e tecidos"
             mask4 = final_df.iloc[:, 0].str.strip().str.lower() == "ponto de control"
             mask5 = final_df.iloc[:, 0].str.strip().str.lower() == "acabamentos a peça"
+            mask6 = final_df.iloc[:, 0].str.strip().str.lower() == "acessorios" #na tabela discriminada
             if all(m.any() for m in (mask, mask2, mask3, mask4)):
                 idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
                 idx2 = mask2.idxmax()  # índice da primeira ocorrência de acessorios
                 idx3 = mask3.idxmax()  # índice da primeira ocorrência de malhas e tecidos
                 idx4 = mask4.idxmax()  # índice da primeira ocorrência de ponto de control
+                idx6 = mask6.idxmax()  # índice da primeira ocorrência de acessorios #na tabela discriminada
 
                 page_1_df = final_df.iloc[idx+1:idx2, :]
                 # Identificar valores none
@@ -126,6 +128,11 @@ def pdf_to_excel(nome_pdf,excel_name):
                 # Identificar valores none
                 page_4_df = limpar_linhas_vazias(page_4_df)
 
+            if mask6.any():
+                idx6 = mask6.idxmax()  # índice da primeira ocorrência de acessorios
+                page_5_df = final_df.iloc[idx6+1:idx3, :]
+                # Identificar valores none
+                page_5_df = limpar_linhas_vazias(page_5_df)
 
             # Escrever no Excel
             with pd.ExcelWriter(excel_name, engine='xlsxwriter') as writer:
@@ -134,6 +141,8 @@ def pdf_to_excel(nome_pdf,excel_name):
                 page_3_df.to_excel(writer, sheet_name='Page_3', index=False, header=False)
                 if mask5.any():
                     page_4_df.to_excel(writer, sheet_name='Page_4', index=False, header=False)
+                if mask6.any():
+                    page_5_df.to_excel(writer, sheet_name='Page_5', index=False, header=False)
     
 
         return ref_text, name_text
@@ -162,7 +171,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     second_sheet_name = list(sheets.keys())[2]
     #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
     df2 = sheets[second_sheet_name].fillna('').astype(str)
-
+    
     #selecionar a primeira coluna
     first_col2 = df2.iloc[:, 0].str.strip().str.lower()
     
@@ -211,13 +220,28 @@ def trim_excel_before_marker(excel_path,excel_saida):
     # acessorios
     marker_acessorios = "Acessorios"
     mask_acessorios = first_col2.eq(marker_acessorios.lower())
+    nominataded_acessorios_cost=0
+    other_acessorios_cost=0
     if not mask_acessorios.any():
-        acessorios_cost=0
+        #nomitaded_acessorios_cost=0
+        #other_acessorios_cost=0
         perc_acessorios = 0
     else:
         acessorios_idx = mask_acessorios.idxmax()
         acessorios_cost = pd.to_numeric(df2.iloc[acessorios_idx, 2], errors='coerce')
         perc_acessorios = acessorios_cost * percent_value
+
+        codes_key = ["1957","APL0130","ECT0185","EMC0104","FCM0138","SAC0027"]
+        #sheet que contem os acessorios descriminados
+        sheet5_name = list(sheets.keys())[4]
+        #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
+        df5 = sheets[sheet5_name].fillna('').astype(str)
+
+        for i in range(0,len(df5)):
+            if df5.iloc[i,0] in codes_key:
+                nominataded_acessorios_cost += pd.to_numeric(df5.iloc[i, -1], errors='coerce')
+            else:
+                other_acessorios_cost += pd.to_numeric(df5.iloc[i, -1], errors='coerce')
 
     #margem corte
     marker_margem_corte = "Margem Corte"
@@ -242,7 +266,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         comissao_idx = mask_comissao.idxmax()
         comissao_cost = pd.to_numeric(df2.iloc[comissao_idx, 2], errors='coerce')
 
-    acessories_final_cost = acessorios_cost + comissao_cost
+    nominataded_acessories_final_cost = nominataded_acessorios_cost + comissao_cost
 
 
     # para contar quantos componentes terei que dividir a margem do corte e percentagem dos acessorios, para além de CMT, malhas e artworks
@@ -256,7 +280,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         mask_cmt = first_col2.eq(marker.lower())
         if not mask_cmt.any():
             markers_cmt.remove(marker)
-            st.write(f"Atenção: '{marker}' não encontrado na tabela de Ponto de Control. Não será considerado no custo CMT")
+            print(f"Atenção: '{marker}' não encontrado na tabela de Ponto de Control. Não será considerado no custo CMT")
             continue
             #raise ValueError(f"'{marker}' não encontrado na segunda folha do excel.")
         cmt_idx = mask_cmt.idxmax()
@@ -288,7 +312,9 @@ def trim_excel_before_marker(excel_path,excel_saida):
         primeiro_sheet_name = list(sheets.keys())[0]
         #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
         df3 = sheets[primeiro_sheet_name].fillna('').astype(str)
+        #valor do desconto que será adicionado a cada artwork
         desconte_add = descontos_cost / len(df3)
+        
 
 
     # washing
@@ -303,10 +329,12 @@ def trim_excel_before_marker(excel_path,excel_saida):
         df4 = sheets[sheet4_name].fillna('').astype(str)
         count +=1
 
+    #valor que será adicionado a cada um dos processos  Malhas, CMT, Artworks e Washing
     div_value = add_cost_div / count
 
     #adicionar informação das malhas
     for i in range(0,num_malhas):
+        #valor a adicionar a cada uma das malhas
         div_value_per_malha = div_value/num_malhas
         if i < num_malhas-1:
             linha_inf = []
@@ -337,8 +365,11 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
     #adicionar informação acessorios
     #linhas_excel.append(["","Trims", "", "", acessorios_cost, acessories_final_cost])
-    linhas_excel.append(["","Trims", round(float(acessories_final_cost),2)])
+    linhas_excel.append(["","Nominated Trims", round(float(nominataded_acessories_final_cost),2)])
+    linhas_excel.append(["","Other Trims", round(float(other_acessorios_cost),2)])
+
     #adicionar informação artworks
+    #o valor a adicionar aos artworks será div_value mais o desconto-(dividido pela quantidade de artworks)
     qtd_adicionar  = (div_value/len(df3))+desconte_add
     for i in range(0,len(df3)):
         linha_inf = []
@@ -399,7 +430,9 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
     df_final = pd.DataFrame(linhas_excel,columns = header_colunas)
 
-    total_cost_per_garment = df_final["total cost per garmet (€)"].sum()
+    #total_cost_per_garment = df_final["total cost per garmet (€)"].sum()
+    nr_df_final = 6+len(df_final)
+    total_cost_per_garment = f"=SUM(C7:C{nr_df_final})"
     #nova_linha = pd.DataFrame([["", "Total per garment", "", "", "", total_cost_per_garment]], columns=header_colunas)
     nova_linha = pd.DataFrame([["", "Total per garment", total_cost_per_garment]], columns=header_colunas)
     df_final = pd.concat([df_final, nova_linha], ignore_index=True)
@@ -442,7 +475,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
             for cell in row:
                 cell.font = Font(size=12)  # Tamanho da letra 14
                 cell.alignment = Alignment(wrap_text=True, horizontal='center', vertical='top')
-
+                #if cell.column >= start_col_idx:  # Apenas células a partir da coluna 'D'
+                #    cell.alignment = Alignment(horizontal='center', vertical='center')
 
         # Definir a espessura da borda
         border_style = Border(
@@ -525,6 +559,7 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
+
 
 
 
