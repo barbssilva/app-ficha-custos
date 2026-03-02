@@ -177,7 +177,7 @@ def pdf_to_excel(nome_pdf,excel_name):
                 missing = [name for name, m in (("malhas e tecidos", mask3),
                                                 ("acessorios", mask2),
                                                 ("ponto de control", mask4)) if not m.any()]
-                #raise ValueError(f"Faltam secções obrigatórias: {', '.join(missing)}")
+                raise ValueError(f"Faltam secções obrigatórias: {', '.join(missing)}")
 
             # Escrever no Excel
             with pd.ExcelWriter(excel_name, engine='xlsxwriter') as writer:
@@ -604,6 +604,7 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
+
 
 
 
