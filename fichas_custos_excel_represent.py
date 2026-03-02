@@ -78,24 +78,21 @@ def pdf_to_excel(nome_pdf,excel_name):
             for df in todas_tabelas:
                 final_df = pd.concat([final_df, df, pd.DataFrame([[""] * len(df.columns)])], ignore_index=True)
 
-            # Procurar a linha onde a primeira coluna diz "Ponto de controlo"
+            # Procurar a linha onde a primeira coluna diz ....
             mask = final_df.iloc[:, 0].str.strip().str.lower() == "bordados e estampados"
             mask2 = final_df.iloc[:, 0].str.strip().str.lower() == "acessorios"
             mask3 = final_df.iloc[:, 0].str.strip().str.lower() == "malhas e tecidos"
             mask4 = final_df.iloc[:, 0].str.strip().str.lower() == "ponto de control"
             mask5 = final_df.iloc[:, 0].str.strip().str.lower() == "acabamentos a peça"
-            mask6 = final_df.iloc[:, 0].str.strip().str.lower() == "acessorios" #na tabela discriminada
-            if all(m.any() for m in (mask, mask2, mask3, mask4)):
-                idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
+
+            if all(m.any() for m in (mask2, mask3, mask4)):
                 idx2 = mask2.idxmax()  # índice da primeira ocorrência de acessorios
                 idx3 = mask3.idxmax()  # índice da primeira ocorrência de malhas e tecidos
                 idx4 = mask4.idxmax()  # índice da primeira ocorrência de ponto de control
-                idx6 = mask6.idxmax()  # índice da primeira ocorrência de acessorios #na tabela discriminada
 
-                page_1_df = final_df.iloc[idx+1:idx2, :]
-                # Identificar valores none
-                page_1_df = limpar_linhas_vazias(page_1_df)
-
+                """
+                inf malhas e tecidos
+                """
                 page_2_df = final_df.iloc[idx3+1:idx4, :]
                 #escolher apenas linhas que tenham UN ou MT ou KG na coluna D (índice 3)
                 col_unidade = page_2_df.iloc[:, 3].str.strip().str.lower()
@@ -104,6 +101,9 @@ def pdf_to_excel(nome_pdf,excel_name):
                 # Identificar valores none
                 page_2_df = limpar_linhas_vazias(page_2_df)
 
+                """
+                inf tabela ponto de controlo
+                """
                 page_3_df = final_df.iloc[idx4+1:, :]
                 #escolher apenas linhas que tenham apenas as operações até desconto
                 col_opere = page_3_df.iloc[:, 0].str.strip().str.lower()
@@ -115,38 +115,83 @@ def pdf_to_excel(nome_pdf,excel_name):
                 # Remover colunas vazias
                 page_3_df = page_3_df.drop(columns=colunas_para_remover3)
 
-            else:
-                missing = [name for name, m in (("bordados e estampados", mask),
-                                                ("acessorios", mask2),
-                                                ("malhas e tecidos", mask3),
-                                                ("ponto de control", mask4)) if not m.any()]
-                raise ValueError(f"Faltam secções obrigatórias: {', '.join(missing)}")
-            
-            if mask5.any():
-                idx5 = mask5.idxmax()  # índice da primeira ocorrência de acabamentos a peça
-                page_4_df = final_df.iloc[idx5+1:idx, :]
-                # Identificar valores none
-                page_4_df = limpar_linhas_vazias(page_4_df)
-
-            if mask6.any():
-                idx6 = mask6.idxmax()  # índice da primeira ocorrência de acessorios
-                page_5_df = final_df.iloc[idx6+1:idx3, :]
+                """
+                inf acessorios
+                """
+                page_5_df = final_df.iloc[idx2+1:idx3, :]
                 # Identificar valores none
                 page_5_df = limpar_linhas_vazias(page_5_df)
+
+
+                if mask.any() and mask5.any():
+                    idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
+                    idx5 = mask5.idxmax()   # índice da primeira ocorrência de acabamentos a peça
+
+                    """
+                    inf bordados e estampados
+                    """
+                    page_1_df = final_df.iloc[idx+1:idx2, :]
+                    # Identificar valores none
+                    page_1_df = limpar_linhas_vazias(page_1_df)
+
+
+                    """
+                    inf acabementos à peça
+                    """
+                    page_4_df = final_df.iloc[idx5+1:idx, :]
+                    # Identificar valores none
+                    page_4_df = limpar_linhas_vazias(page_4_df)
+
+
+                elif mask5.any() and not mask.any():
+                    idx5 = mask5.idxmax()   # índice da primeira ocorrência de acabamentos a peça
+
+                    """
+                    inf bordados e estampados
+                    """
+                    page_1_df = pd.DataFrame()  # DataFrame vazio para bordados e estampados, já que não existe essa secção
+
+                    """
+                    inf acabementos à peça
+                    """
+                    page_4_df = final_df.iloc[idx5+1:idx2, :]
+                    # Identificar valores none
+                    page_4_df = limpar_linhas_vazias(page_4_df)
+                
+                elif mask.any() and not mask5.any():
+                    idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
+
+                    """
+                    inf bordados e estampados
+                    """
+                    page_1_df = final_df.iloc[idx+1:idx2, :]
+                    # Identificar valores none
+                    page_1_df = limpar_linhas_vazias(page_1_df)
+
+                    """
+                    inf acabementos à peça
+                    """
+                    page_4_df = pd.DataFrame()  # DataFrame vazio para acabamentos à peça, já que não existe essa secção
+
+            else:
+                missing = [name for name, m in (("malhas e tecidos", mask3),
+                                                ("acessorios", mask2),
+                                                ("ponto de control", mask4)) if not m.any()]
+                raise ValueError(f"Faltam secções obrigatórias: {', '.join(missing)}")
 
             # Escrever no Excel
             with pd.ExcelWriter(excel_name, engine='xlsxwriter') as writer:
                 page_1_df.to_excel(writer, sheet_name='Page_1', index=False, header=False)
                 page_2_df.to_excel(writer, sheet_name='Page_2', index=False, header=False)
                 page_3_df.to_excel(writer, sheet_name='Page_3', index=False, header=False)
-                if mask5.any():
-                    page_4_df.to_excel(writer, sheet_name='Page_4', index=False, header=False)
-                if mask6.any():
-                    page_5_df.to_excel(writer, sheet_name='Page_5', index=False, header=False)
+                page_4_df.to_excel(writer, sheet_name='Page_4', index=False, header=False)
+                page_5_df.to_excel(writer, sheet_name='Page_5', index=False, header=False)
     
 
         return ref_text, name_text
 
+
+# ...existing code...
 def trim_excel_before_marker(excel_path,excel_saida):
 
     """
@@ -229,7 +274,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         acessorios_cost = pd.to_numeric(df2.iloc[acessorios_idx, 2], errors='coerce')
         perc_acessorios = acessorios_cost * percent_value
 
-        codes_key = ["1957","APL0130","APL0130.1","SAC0027.1","ECT0185","EMC0104","FCM0138","SAC0027","SAC0110","FCM0288","FCM0179","APL0167"]
+        codes_key = ["1957","APL0130","ECT0185","EMC0104","FCM0138","SAC0027"]
         #sheet que contem os acessorios descriminados
         sheet5_name = list(sheets.keys())[4]
         #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
@@ -268,7 +313,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
 
     # para contar quantos componentes terei que dividir a margem do corte e percentagem dos acessorios, para além de CMT, malhas e artworks
-    count = 3
+    count = 2
 
 
     # CMT (MANIFACTURING COST)
@@ -306,6 +351,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     if not mask_artworks.any():
         artworks_cost=0
     else:
+        count +=1
         #primeira sheet que contem os artworks descriminados
         primeiro_sheet_name = list(sheets.keys())[0]
         #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
@@ -368,17 +414,18 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
     #adicionar informação artworks
     #o valor a adicionar aos artworks será div_value mais o desconto-(dividido pela quantidade de artworks)
-    qtd_adicionar  = (div_value/len(df3))+desconte_add
-    for i in range(0,len(df3)):
-        linha_inf = []
-        linha_inf.append(df3.iloc[i,0])  # codigo do artwork
-        linha_inf.append(df3.iloc[i,1])  # artigo do artwork
-        #linha_inf.append("") # consumo do artwork
-        #linha_inf.append("") # unidade do artwork
-        custo_artwork = pd.to_numeric(df3.iloc[i, -1], errors='coerce')
-        #linha_inf.append(custo_artwork)  # preço antes de aplicar a margem
-        linha_inf.append(round(float(custo_artwork*(1+percent_value)) + qtd_adicionar,2))  # preço após aplicar a margem e soma da parte dividida 
-        linhas_excel.append(linha_inf)
+    if mask_artworks.any():
+        qtd_adicionar  = (div_value/len(df3))+desconte_add
+        for i in range(0,len(df3)):
+            linha_inf = []
+            linha_inf.append(df3.iloc[i,0])  # codigo do artwork
+            linha_inf.append(df3.iloc[i,1])  # artigo do artwork
+            #linha_inf.append("") # consumo do artwork
+            #linha_inf.append("") # unidade do artwork
+            custo_artwork = pd.to_numeric(df3.iloc[i, -1], errors='coerce')
+            #linha_inf.append(custo_artwork)  # preço antes de aplicar a margem
+            linha_inf.append(round(float(custo_artwork*(1+percent_value)) + qtd_adicionar,2))  # preço após aplicar a margem e soma da parte dividida 
+            linhas_excel.append(linha_inf)
 
     #adicionar informação washing caso exista
     if mask_washing.any():  
@@ -557,8 +604,6 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
-
-
 
 
 
