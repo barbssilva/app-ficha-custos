@@ -562,27 +562,3 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
-
-"RUN CODE"
-if __name__ == "__main__":
-    #definir nome do ficheiro pdf
-    pdf_name = f'{sys.argv[1]}.pdf'
-
-    #definir o nome do ficheiro excel para o qual será transferida a informação do pdf
-    excel_entrada = f'{sys.argv[1]}.xlsx'
-
-    excel_saida = f'{sys.argv[1]}_tabela.xlsx'
-
-    #conversão de pdf para excel
-    ref_text, name_text = pdf_to_excel(pdf_name,excel_entrada)
-    inf_texto = [f"Ref: {ref_text}",name_text]
-    #sys.exit()
-
-    try:
-        trim_excel_before_marker(excel_entrada,excel_saida)
-        add_images(pdf_name,excel_saida,inf_texto)
-    #se der erro, mostrar mensagem e continua o resto do código que está para a frente
-    except ValueError as e:
-        print(e)
-    
-    os.remove(excel_entrada)
