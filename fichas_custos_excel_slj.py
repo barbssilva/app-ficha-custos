@@ -44,12 +44,12 @@ def limpar_linhas_vazias(df):
 def extract_sections_from_text(text):
     split1  = text.split("Ref:")
     if len(split1) != 1:
-        ref = split1[1].split("ANGLOTEX - CONFECÇÕES, LDA.")[0]
+        ref = split1[1].split("ANGLOTEX - CONFECÇÕES,")[0]
     else:
         ref = "ND"
-    split2 = text.split("ANGLOTEX - CONFECÇÕES, LDA.")
+    split2 = text.split("LDA.")
     if len(split2) != 1:
-        name = split2[1].split("Matéria")[0]
+        name = split2[1].split("SLAM JAM")[0]
     else:
         name  = "ND"
     return ref.strip(), name.strip()
