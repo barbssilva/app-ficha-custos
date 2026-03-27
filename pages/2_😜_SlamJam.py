@@ -9,7 +9,7 @@ import os
 from io import BytesIO
 import zipfile
 
-st.title("Slam Jam 😜")
+st.title("Slam Jam")
 
 from fichas_custos_excel_represent import trim_excel_before_marker, pdf_to_excel, add_images
 
