@@ -8,6 +8,7 @@ import openpyxl
 import os
 from io import BytesIO
 import zipfile
+from PyPDF2 import PdfReader, PdfWriter
 
 st.title("Represent")
 
@@ -32,11 +33,23 @@ if uploaded_files:
                 temp_pdf.write(uploaded_file.read())
                 temp_pdf_path = temp_pdf.name
                 # Abrir PDF e extrair texto da primeira página
-
+                # --- Limpar PDF e criar nova versão ---
+            
+            reader = PdfReader(temp_pdf_path)
+            writer = PdfWriter()
+            for page in reader.pages:
+                writer.add_page(page)  # mantém layout, texto, imagens
+        
+            # Guardar PDF limpo temporário
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as cleaned_pdf:
+                cleaned_pdf_path = cleaned_pdf.name
+                with open(cleaned_pdf_path, "wb") as f:
+                    writer.write(f)
         
             # Agora cria o excel_entrada e excel_saida no mesmo diretório do ficheiro temporário,
             # mas com nomes baseados no ficheiro original:
-            temp_dir = os.path.dirname(temp_pdf_path)
+            temp_dir = os.path.dirname(cleaned_pdf_path)
+            #temp_dir = os.path.dirname(temp_pdf_path)
             excel_entrada = os.path.join(temp_dir, base_name + ".xlsx")
             #excel_saida = os.path.join(temp_dir,"tabela_custos.xlsx")
         
@@ -44,7 +57,7 @@ if uploaded_files:
             placeholder = st.empty()
             placeholder.info("⏳ Por favor aguarde...")
         
-            ref_text, name_text = pdf_to_excel(temp_pdf_path,excel_entrada)
+            ref_text, name_text = pdf_to_excel(cleaned_pdf_path,excel_entrada)
             inf_texto = [f"Ref: {ref_text}",name_text]
             excel_saida = os.path.join(temp_dir,f"tabela_custos_{ref_text}.xlsx")
         
