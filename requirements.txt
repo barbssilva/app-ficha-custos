@@ -4,4 +4,3 @@ pdfplumber
 openpyxl
 xlsxwriter
 Pillow
-PyPDF2
