@@ -31,6 +31,17 @@ if uploaded_files:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
                 temp_pdf.write(uploaded_file.read())
                 temp_pdf_path = temp_pdf.name
+                # Abrir PDF e extrair texto da primeira página
+        try:
+            with pdfplumber.open(temp_pdf_path) as pdf:
+                first_page = pdf.pages[0]
+                text = first_page.extract_text()
+                if not text or text.strip() == "":
+                    st.warning("⚠️ Este PDF parece diferente: pode ter texto como imagem ou codificação estranha.")
+                else:
+                    st.success("✅ PDF normal: texto detectado.")
+        except Exception as e:
+            st.error(f"❌ Erro ao ler o PDF: {e}")
         
             # Agora cria o excel_entrada e excel_saida no mesmo diretório do ficheiro temporário,
             # mas com nomes baseados no ficheiro original:
