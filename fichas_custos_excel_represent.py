@@ -142,7 +142,6 @@ def pdf_to_excel(nome_pdf,excel_name):
                     # Identificar valores none
                     page_4_df = limpar_linhas_vazias(page_4_df)
 
-
                 elif mask5.any() and not mask.any():
                     idx5 = mask5.idxmax()   # índice da primeira ocorrência de acabamentos a peça
 
@@ -604,6 +603,7 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
+
 
 
 
