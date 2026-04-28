@@ -266,7 +266,9 @@ def trim_excel_before_marker(excel_path,excel_saida):
     """
     CALCULAR RESTANTES COMPONENTES DO PREÇO: ARTWORKS, WASHING, CMT(CORTE,CONFEÇÃO,EMBALAMENTO), OTHER COSTS, ACESSÓRIOS
     """
-
+    # para contar quantos componentes terei que dividir a margem do corte e percentagem dos acessorios, para além de CMT, malhas e artworks
+    count = 2
+    
     #df2 e first_col2 já estão definidos anteriormente para a sheet 3 do excel
 
     # acessorios
@@ -279,9 +281,9 @@ def trim_excel_before_marker(excel_path,excel_saida):
         #other_acessorios_cost=0
         perc_acessorios = 0
     else:
+        count +=1
         acessorios_idx = mask_acessorios.idxmax()
         acessorios_cost = pd.to_numeric(df2.iloc[acessorios_idx, 2], errors='coerce')
-        perc_acessorios = acessorios_cost * percent_value
 
         codes_key = ["Col0056","ECP0134.1","ECT0241.1","EMC0166","ETI0425","ETM0075","FCM0004","SAC0156","ECP0134","ECT0241","EMC01652"]
         #sheet que contem os acessorios descriminados
@@ -294,6 +296,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
                 nominataded_acessorios_cost += pd.to_numeric(df5.iloc[i, -1], errors='coerce')
             else:
                 other_acessorios_cost += pd.to_numeric(df5.iloc[i, -1], errors='coerce')
+                
+        perc_acessorios = nominataded_acessorios_cost * percent_value
 
     #margem corte
     marker_margem_corte = "Margem Corte"
@@ -308,7 +312,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
     #valor que será dividido por Malhas, CMT, Artworks e Washing
     add_cost_div= margem_corte_cost + perc_acessorios
     
-
+    """
+    nao necessario neste momento
     # comissão (fecho)
     marker_comissao = "Comissão"
     mask_comissao = first_col2.eq(marker_comissao.lower())
@@ -319,10 +324,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         comissao_cost = pd.to_numeric(df2.iloc[comissao_idx, 2], errors='coerce')
 
     nominataded_acessories_final_cost = nominataded_acessorios_cost + comissao_cost
-
-
-    # para contar quantos componentes terei que dividir a margem do corte e percentagem dos acessorios, para além de CMT, malhas e artworks
-    count = 2
+    """ 
 
 
     # CMT (MANIFACTURING COST)
@@ -419,7 +421,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     #adicionar informação acessorios
     #linhas_excel.append(["","Trims", "", "", acessorios_cost, acessories_final_cost])
     linhas_excel.append(["","Nominated Trims", round(float(nominataded_acessories_final_cost),2)])
-    linhas_excel.append(["","Other Trims", round(float(other_acessorios_cost),2)])
+    linhas_excel.append(["","Other Trims", round(float((other_acessorios_cost* (1+percent_value)))+div_value,2)])
 
     #adicionar informação artworks
     #o valor a adicionar aos artworks será div_value mais o desconto-(dividido pela quantidade de artworks)
