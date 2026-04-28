@@ -171,6 +171,18 @@ def pdf_to_excel(nome_pdf,excel_name):
                     inf acabementos à peça
                     """
                     page_4_df = pd.DataFrame()  # DataFrame vazio para acabamentos à peça, já que não existe essa secção
+                    
+                elif not mask.any() and not mask5.any():
+                    #se não tiver bordados nem acabamentos à peça
+                                        """
+                    inf bordados e estampados
+                    """
+                    page_1_df = pd.DataFrame()
+
+                    """
+                    inf acabementos à peça
+                    """
+                    page_4_df = pd.DataFrame()  # DataFrame vazio para acabamentos à peça, já que não existe essa secção
 
             else:
                 missing = [name for name, m in (("malhas e tecidos", mask3),
