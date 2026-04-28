@@ -421,7 +421,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     #adicionar informação acessorios
     #linhas_excel.append(["","Trims", "", "", acessorios_cost, acessories_final_cost])
     linhas_excel.append(["","Nominated Trims", round(float(nominataded_acessories_final_cost),2)])
-    linhas_excel.append(["","Other Trims", round(float(other_acessorios_cost* (1+percent_value)+div_value,2)])
+    linhas_excel.append(["","Other Trims", round(float(other_acessorios_cost* (1+percent_value)+div_value),2)])
 
     #adicionar informação artworks
     #o valor a adicionar aos artworks será div_value mais o desconto-(dividido pela quantidade de artworks)
