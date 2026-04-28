@@ -9,7 +9,7 @@ import os
 from io import BytesIO
 import zipfile
 
-st.title("Represent")
+st.title("Acne Studios AB")
 
 from fichas_custos_excel_acne import trim_excel_before_marker, pdf_to_excel, add_images
 
