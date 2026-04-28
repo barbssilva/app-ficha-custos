@@ -273,7 +273,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         acessorios_cost = pd.to_numeric(df2.iloc[acessorios_idx, 2], errors='coerce')
         perc_acessorios = acessorios_cost * percent_value
 
-        codes_key = ["1957","APL0130","ECT0185","EMC0104","FCM0138","SAC0027"]
+        codes_key = ["Col0056","ECP0134.1","ECT0241.1","EMC0166","ETI0425","ETM0075","FCM0004","SAC0156","ECP0134","ECT0241","EMC01652"]
         #sheet que contem os acessorios descriminados
         sheet5_name = list(sheets.keys())[4]
         #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
