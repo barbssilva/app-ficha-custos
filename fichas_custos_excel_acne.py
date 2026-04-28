@@ -325,7 +325,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
     nominataded_acessories_final_cost = nominataded_acessorios_cost + comissao_cost
     """ 
-
+    
+    nominataded_acessories_final_cost = nominataded_acessorios_cost
 
     # CMT (MANIFACTURING COST)
     markers_cmt = ["corte", "confecção", "embalamento", "linhas"]
