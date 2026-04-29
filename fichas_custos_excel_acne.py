@@ -266,9 +266,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     """
     CALCULAR RESTANTES COMPONENTES DO PREÇO: ARTWORKS, WASHING, CMT(CORTE,CONFEÇÃO,EMBALAMENTO), OTHER COSTS, ACESSÓRIOS
     """
-    # para contar quantos componentes terei que dividir a margem do corte e percentagem dos acessorios, para além de CMT, malhas e artworks
-    count = 2
-    
+
     #df2 e first_col2 já estão definidos anteriormente para a sheet 3 do excel
 
     # acessorios
@@ -281,7 +279,6 @@ def trim_excel_before_marker(excel_path,excel_saida):
         #other_acessorios_cost=0
         perc_acessorios = 0
     else:
-        count +=1
         acessorios_idx = mask_acessorios.idxmax()
         acessorios_cost = pd.to_numeric(df2.iloc[acessorios_idx, 2], errors='coerce')
 
@@ -309,8 +306,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
         margem_corte_cost = pd.to_numeric(df2.iloc[margem_corte_idx, 2], errors='coerce')
         margem_corte_cost = margem_corte_cost * (1+percent_value)
 
-    #valor que será dividido por Malhas, CMT, Artworks e Washing
-    add_cost_div= margem_corte_cost + perc_acessorios
+    #valor que será adicionado ao CMT
+    add_cost= margem_corte_cost + perc_acessorios
     
     """
     nao necessario neste momento
@@ -363,7 +360,6 @@ def trim_excel_before_marker(excel_path,excel_saida):
     if not mask_artworks.any():
         artworks_cost=0
     else:
-        count +=1
         #primeira sheet que contem os artworks descriminados
         primeiro_sheet_name = list(sheets.keys())[0]
         #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
@@ -383,74 +379,52 @@ def trim_excel_before_marker(excel_path,excel_saida):
         sheet4_name = list(sheets.keys())[3]
         #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
         df4 = sheets[sheet4_name].fillna('').astype(str)
-        count +=1
 
-    #valor que será adicionado a cada um dos processos  Malhas, CMT, Artworks e Washing
-    div_value = add_cost_div / count
 
     #adicionar informação das malhas
     for i in range(0,num_malhas):
-        #valor a adicionar a cada uma das malhas
-        div_value_per_malha = div_value/num_malhas
         if i < num_malhas-1:
             linha_inf = []
             linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
             linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
-            #consumo=pd.to_numeric(df.iloc[malhas_indices[i], -3], errors='coerce')
-            #linha_inf.append(consumo)  # consumo da malha
-            #linha_inf.append(df.iloc[malhas_indices[i],3]) #unidade da malha
             soma1=pd.to_numeric(df.iloc[malhas_indices[i]:malhas_indices[i+1], -1], errors='coerce').sum() 
-            #linha_inf.append(soma1)  # preço antes de aplicar a margem
-            linha_inf.append(round(float(soma1*(1+percent_value)+div_value_per_malha),2))  # preço após aplicar a margem e soma da parte dividida
+            linha_inf.append(round(float(soma1*(1+percent_value)),2))  # preço após aplicar a margem e soma da parte dividida
             linhas_excel.append(linha_inf)
         else:
             linha_inf = []
             linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
             linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
-            #consumo=pd.to_numeric(df.iloc[malhas_indices[i], -3], errors='coerce')
-            #linha_inf.append(consumo)  # consumo
-            #linha_inf.append(df.iloc[malhas_indices[i],3]) #unidade da malha
             soma1=pd.to_numeric(df.iloc[malhas_indices[i]:ultima_linha+1, -1], errors='coerce').sum()
-            #linha_inf.append(soma1)  # preço antes de aplicar a margem
-            linha_inf.append(round(float(soma1*(1+percent_value)+div_value_per_malha),2))  # preço após aplicar a margem e soma da parte dividida
+            linha_inf.append(round(float(soma1*(1+percent_value)),2))  # preço após aplicar a margem e soma da parte dividida
             linhas_excel.append(linha_inf)
 
     #adicionar informação cmt
     #linhas_excel.append(["","CMT", "", "", cmt_cost, cmt_margem_cost + div_value])
-    linhas_excel.append(["","CMT", round(float(cmt_margem_cost + div_value),2)])
+    linhas_excel.append(["","CMT", round(float(cmt_margem_cost + add_cost),2)])
 
     #adicionar informação acessorios
     #linhas_excel.append(["","Trims", "", "", acessorios_cost, acessories_final_cost])
     linhas_excel.append(["","Nominated Trims", round(float(nominataded_acessories_final_cost),2)])
-    linhas_excel.append(["","Other Trims", round(float(other_acessorios_cost* (1+percent_value)+div_value),2)])
+    linhas_excel.append(["","Other Trims", round(float(other_acessorios_cost* (1+percent_value)),2)])
 
     #adicionar informação artworks
-    #o valor a adicionar aos artworks será div_value mais o desconto-(dividido pela quantidade de artworks)
     if mask_artworks.any():
-        qtd_adicionar  = (div_value/len(df3))+desconte_add
         for i in range(0,len(df3)):
             linha_inf = []
             linha_inf.append(df3.iloc[i,0])  # codigo do artwork
             linha_inf.append(df3.iloc[i,1])  # artigo do artwork
-            #linha_inf.append("") # consumo do artwork
-            #linha_inf.append("") # unidade do artwork
             custo_artwork = pd.to_numeric(df3.iloc[i, -1], errors='coerce')
-            #linha_inf.append(custo_artwork)  # preço antes de aplicar a margem
-            linha_inf.append(round(float(custo_artwork*(1+percent_value)) + qtd_adicionar,2))  # preço após aplicar a margem e soma da parte dividida 
+            linha_inf.append(round(float(custo_artwork*(1+percent_value)),2))  # preço após aplicar a margem e soma da parte dividida 
             linhas_excel.append(linha_inf)
 
     #adicionar informação washing caso exista
     if mask_washing.any():  
-        qtd_adicionar_washing  = (div_value/len(df4))
         for i in range(0,len(df4)):
             linha_inf = []
             linha_inf.append(df4.iloc[i,0])  # codigo do washing
             linha_inf.append(df4.iloc[i,1])  # artigo do washing
-            #linha_inf.append("") # consumo do washing
-            #linha_inf.append("") # unidade do washing
             custo_washing = pd.to_numeric(df4.iloc[i, -1], errors='coerce')
-            #linha_inf.append(custo_washing)  # preço antes de aplicar a margem
-            linha_inf.append(round(float(custo_washing*(1+percent_value)) + qtd_adicionar_washing,2))  # preço após aplicar a margem e soma da parte dividida 
+            linha_inf.append(round(float(custo_washing*(1+percent_value)),2))  # preço após aplicar a margem e soma da parte dividida 
             linhas_excel.append(linha_inf)
 
 
@@ -472,13 +446,11 @@ def trim_excel_before_marker(excel_path,excel_saida):
     
     other_costs_final = other_costs * (1+percent_value)
 
-    #linhas_excel.append(["","Other", "", "", other_costs,other_costs_final]) 
     linhas_excel.append(["","Other",round(float(other_costs_final),2)])
 
     """
     FIM - CALCULAR RESTANTES COMPONENTES DO PREÇO: ARTWORKS, WASHING, CMT(CORTE,CONFEÇÃO,EMBALAMENTO), OTHER COSTS, ACESSÓRIOS
     
-    variaveis a usar: cmt_cost, acessorios_cost, artworks_cost, washing_cost
     """
     
     """
