@@ -388,14 +388,14 @@ def trim_excel_before_marker(excel_path,excel_saida):
             linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
             linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
             soma1=pd.to_numeric(df.iloc[malhas_indices[i]:malhas_indices[i+1], -1], errors='coerce').sum() 
-            linha_inf.append(round(float(soma1*(1+percent_value)),2))  # preço após aplicar a margem e soma da parte dividida
+            linha_inf.append(round(float(soma1*(1+percent_value)),2))  # preço após aplicar a margem
             linhas_excel.append(linha_inf)
         else:
             linha_inf = []
             linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
             linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
             soma1=pd.to_numeric(df.iloc[malhas_indices[i]:ultima_linha+1, -1], errors='coerce').sum()
-            linha_inf.append(round(float(soma1*(1+percent_value)),2))  # preço após aplicar a margem e soma da parte dividida
+            linha_inf.append(round(float(soma1*(1+percent_value)),2))  # preço após aplicar a margem
             linhas_excel.append(linha_inf)
 
     #adicionar informação cmt
