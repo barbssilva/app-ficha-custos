@@ -399,11 +399,9 @@ def trim_excel_before_marker(excel_path,excel_saida):
             linhas_excel.append(linha_inf)
 
     #adicionar informação cmt
-    #linhas_excel.append(["","CMT", "", "", cmt_cost, cmt_margem_cost + div_value])
     linhas_excel.append(["","CMT", round(float(cmt_margem_cost + add_cost),2)])
 
     #adicionar informação acessorios
-    #linhas_excel.append(["","Trims", "", "", acessorios_cost, acessories_final_cost])
     linhas_excel.append(["","Nominated Trims", round(float(nominataded_acessories_final_cost),2)])
     linhas_excel.append(["","Other Trims", round(float(other_acessorios_cost* (1+percent_value)),2)])
 
@@ -414,7 +412,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
             linha_inf.append(df3.iloc[i,0])  # codigo do artwork
             linha_inf.append(df3.iloc[i,1])  # artigo do artwork
             custo_artwork = pd.to_numeric(df3.iloc[i, -1], errors='coerce')
-            linha_inf.append(round(float(custo_artwork*(1+percent_value)),2))  # preço após aplicar a margem e soma da parte dividida 
+            linha_inf.append(round(float(custo_artwork*(1+percent_value)+desconte_add),2))  # preço após aplicar a margem e soma da parte dividida 
             linhas_excel.append(linha_inf)
 
     #adicionar informação washing caso exista
