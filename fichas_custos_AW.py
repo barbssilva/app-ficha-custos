@@ -244,7 +244,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
                 linha_inf=[]
                 linha_inf.append("CC") #para indicar que é nominated
                 linha_inf.append(df_nominated.iloc[i,1]) #descritivo do acessorio
-                linha_inf.append(round(float(pd.to_numeric(df_nominated.iloc[i, -1], errors='coerce'))))
+                linha_inf.append(round(float(pd.to_numeric(df_nominated.iloc[i, -1], errors='coerce')),2))
                 linhas_excel.append(linha_inf)
         if len(df_other_trims) != 0:
             qtd_adicionar = div_value/len(df_other_trims)
