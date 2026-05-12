@@ -44,8 +44,9 @@ if uploaded_files:
         
             placeholder = st.empty()
             placeholder.info("⏳ Por favor aguarde...")
-        
-            ref_text, name_text = pdf_to_excel(temp_pdf_path,excel_entrada)
+
+            cliente = "Alexander Wang LLC"
+            ref_text, name_text = pdf_to_excel(temp_pdf_path,excel_entrada,cliente)
             inf_texto = [f"Ref: {ref_text}",name_text]
             excel_saida = os.path.join(temp_dir,f"tabela_custos_{ref_text}.xlsx")
         
