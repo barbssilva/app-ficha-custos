@@ -42,15 +42,16 @@ def limpar_linhas_vazias(df):
     df_limpo = df.apply(limpar_linha, axis=1, result_type='expand')
     return df_limpo
 
-def extract_sections_from_text(text):
+def extract_sections_from_text(text,cliente):
     split1  = text.split("Ref:")
     if len(split1) != 1:
         ref = split1[1].split("ANGLOTEX - CONFECÇÕES, LDA.")[0]
     else:
         ref = "ND"
-    split2 = text.split("ANGLOTEX - CONFECÇÕES, LDA.")
+    split2 = text.split("LDA.")
     if len(split2) != 1:
-        name = split2[1].split("Acne Studios AB")[0]
+        if cliente == "AW"
+            name = split2[1].split("Alexander Wang LLC")[0]
     else:
         name  = "ND"
     return ref.strip(), name.strip()
