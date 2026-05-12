@@ -107,7 +107,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
                 nominataded_acessorios_cost += pd.to_numeric(df5.iloc[i, -1], errors='coerce')
                 linhas_nominated.append(df5.iloc[i])
             else:
-                linhas_other_trims.append(df5.iloc[i]
+                linhas_other_trims.append(df5.iloc[i])
         perc_acessorios = nominataded_acessorios_cost * percent_value
                 
         # transforma em dataframe
