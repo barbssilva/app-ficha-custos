@@ -21,7 +21,7 @@ def extract_sections_from_text(text):
         ref = "ND"
     split2 = text.split("LDA.")
     if len(split2) != 1:
-        name = split2[1].split("Alexander")[0]
+        name = split2[1].split("Matéria Prima")[0]
     else:
         name  = "ND"
     return ref.strip(), name.strip()
