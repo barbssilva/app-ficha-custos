@@ -11,36 +11,6 @@ from openpyxl.drawing.image import Image as ExcelImage
 from PIL import Image
 import io
 
-'''
-A função pdf_to_excel lê o ficheiro pdf e converte-o para um ficheiro excel
-As páginas de pdf que são convertidas para excel são aquelas que contém tabelas com medidas
-'''
-
-def is_vazio(x):
-    return x is None or (isinstance(x, str) and x.strip() in ("", "None"))
-
-def limpar_linhas_vazias(df):
-    """
-    Remove elementos vazios a partir da 4ª coluna (índice 3) e desloca o conteúdo para trás.
-    As primeiras 4 colunas mantêm-se intactas.
-    """
-    def limpar_linha(row):
-        # Manter as primeiras 4 colunas (índices 0, 1, 2,3)
-        primeiras_4 = list(row[:4])
-        
-        # Filtrar apenas elementos que não são vazios a partir da coluna 5
-        elementos_validos_resto = [x for x in row[4:] if not is_vazio(x)]
-        
-        # Preencher com strings vazias até ao comprimento original do resto
-        while len(elementos_validos_resto) < len(row[4:]):
-            elementos_validos_resto.append("")
-        
-        # Combinar as 4 primeiras colunas com o resto processado
-        return primeiras_4 + elementos_validos_resto
-    
-    # Aplicar a função a cada linha
-    df_limpo = df.apply(limpar_linha, axis=1, result_type='expand')
-    return df_limpo
 
 def extract_sections_from_text(text):
     split1  = text.split("Ref:")
