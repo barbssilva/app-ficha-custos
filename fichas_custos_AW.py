@@ -21,7 +21,8 @@ def extract_sections_from_text(text):
         ref = "ND"
     split2 = text.split("ANGLOTEX - CONFECÇÕES, LDA.")
     if len(split2) != 1:
-        name = split2[1].split("Alexander Wang LLC")[0]
+        #name = split2[1].split("Alexander Wang LLC")[0]
+        name = "por favor adicionar nome do modelo"
     else:
         name  = "ND"
     return ref.strip(), name.strip()
