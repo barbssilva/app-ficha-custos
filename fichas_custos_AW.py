@@ -70,7 +70,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         perc2 = pd.to_numeric(df2.iloc[margem_comissao_idx, 2], errors='coerce')
 
     percent_value1 = perc1/100
-    percent_value2 = (1-perc2)/100
+    percent_value2 = (100-perc2)/100
 
     """
     FIM - Obter valor da margem e da comissão e aplicar - está na Page_3 do excel
