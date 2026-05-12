@@ -50,13 +50,12 @@ def extract_sections_from_text(text,cliente):
         ref = "ND"
     split2 = text.split("LDA.")
     if len(split2) != 1:
-        if cliente == "AW"
-            name = split2[1].split("Alexander Wang LLC")[0]
+        name = split2[1].split(cliente)[0]
     else:
         name  = "ND"
     return ref.strip(), name.strip()
 
-def pdf_to_excel(nome_pdf,excel_name):
+def pdf_to_excel(nome_pdf,excel_name,cliente):
    with pdfplumber.open(nome_pdf) as pdf:
         # Lista para guardar todas as tabelas de todas as páginas
         todas_tabelas = []
@@ -68,7 +67,7 @@ def pdf_to_excel(nome_pdf,excel_name):
             })
             if i == 0:
                 text = page.extract_text()
-                ref_text, name_text = extract_sections_from_text(text)
+                ref_text, name_text = extract_sections_from_text(text,cliente)
             for table in tables:
                 df = pd.DataFrame(table).astype(str)
                 todas_tabelas.append(df)
