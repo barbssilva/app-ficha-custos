@@ -282,7 +282,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
             custo_artwork = pd.to_numeric(df3.iloc[i, -1], errors='coerce')
             custo_artwork1 = custo_artwork * percent_value1
             custo_artwork2 = (custo_artwork/percent_value2)-custo_artwork
-            linha_inf.append(round(float(custo_artwork1+custo_artwork2+ qtd_adicionar,2))  # preço após aplicar a margem e soma da parte dividida 
+            linha_inf.append(round(float(custo_artwork1+custo_artwork2+ qtd_adicionar,2)))  # preço após aplicar a margem e soma da parte dividida 
             linhas_excel.append(linha_inf)
 
     #adicionar informação washing caso exista
@@ -295,7 +295,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
             custo_washing = pd.to_numeric(df4.iloc[i, -1], errors='coerce')
             custo_washing1 = custo_washing * percent_value1
             custo_washing2 = (custo_washing/percent_value2)-custo_washing
-            linha_inf.append(round(float(custo_washing1+custo_washing2 + qtd_adicionar_washing,2))  # preço após aplicar a margem e soma da parte dividida 
+            linha_inf.append(round(float(custo_washing1+custo_washing2 + qtd_adicionar_washing,2)))  # preço após aplicar a margem e soma da parte dividida 
             linhas_excel.append(linha_inf)
 
 
