@@ -67,7 +67,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         margem_comissao=0
     else:
         margem_comissao_idx = mask_comissao.idxmax()
-        perc2 = pd.to_numeric(df2.iloc[margem_comissao_idx, 2], errors='coerce')
+        perc2 = pd.to_numeric(df2.iloc[margem_comissao_idx, 1], errors='coerce')
 
     percent_value1 = perc1/100
     percent_value2 = (100-perc2)/100
