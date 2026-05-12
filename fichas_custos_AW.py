@@ -128,6 +128,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
     #valor que será dividido por Malhas, CMT, Artworks e Washing
     add_cost_div= margem_corte_cost + perc_acessorios
+    st.write(f'{add_cost_div})
 
     """
     FIM - CALCULAR VALOR A DISTRIBUIR
