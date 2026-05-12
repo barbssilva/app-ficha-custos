@@ -252,6 +252,14 @@ def add_images(pdf_path,excel_path,inf_texto):
                     excel_img.width = new_width
                     excel_img.height = new_height
                     ws.add_image(excel_img, f"{openpyxl.utils.get_column_letter(col)}{row}")
+    
+    # Inserir linhas vazias no topo (para espaço das imagens)
+    ws.insert_rows(1, 5)
+    excel_img_logo = ExcelImage("Logo anglotex PRETO.png"))
+    # Também garantir dimensões no objecto openpyxl (opcional)
+    excel_img.width = new_width
+    excel_img.height = new_height
+    ws.add_image(excel_img_logo)
 
     # Salvar o arquivo Excel atualizado
     wb.save(excel_path)
