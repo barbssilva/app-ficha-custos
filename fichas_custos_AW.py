@@ -155,7 +155,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         cost = pd.to_numeric(df2.iloc[idx, 2], errors='coerce')
         if not pd.isna(cost):
             cmt_cost += cost
-    cmt_margem_cost = (cmt_cost*(1+percent_value1)/percent_value2
+    cmt_margem_cost = (cmt_cost*(1+percent_value1))/percent_value2
 
     #considerar CMT e Malhas
     count += 2
