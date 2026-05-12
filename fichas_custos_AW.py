@@ -161,7 +161,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
             cmt_cost += cost
     cmt_margem_cost1 = cmt_cost * percent_value1
     cmt_margem_cost2 = (cmt_cost/percent_value2)-cmt_cost
-    cmt_margem_cost = cmt_margem_cost1 + cmt_margem_cost2
+    cmt_margem_cost = cmt_cost+cmt_margem_cost1 + cmt_margem_cost2
 
     #considerar CMT e Malhas
     count += 2
