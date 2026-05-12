@@ -215,7 +215,7 @@ def add_images(pdf_path,excel_path,inf_texto):
         # Adicionar texto no topo
     i=1
     for texto in inf_texto:
-        cell=ws.cell(row=i, column=1, value=texto)  # Insere o texto na coluna A
+        cell=ws.cell(row=i, column=2, value=texto)  # Insere o texto na coluna A
         cell.font = Font(bold=True, size=14) 
         i+=1
 
@@ -259,7 +259,7 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Também garantir dimensões no objecto openpyxl (opcional)
     excel_img_logo.width = 120
     excel_img_logo.height = 100
-    ws.add_image(excel_img_logo,f"{openpyxl.utils.get_column_letter(col+2)}{row+1}")
+    ws.add_image(excel_img_logo,f"{openpyxl.utils.get_column_letter(1)}{1}")
 
     # Salvar o arquivo Excel atualizado
     wb.save(excel_path)
