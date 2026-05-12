@@ -53,6 +53,8 @@ def extract_sections_from_text(text,cliente):
         name = split2[1].split(cliente)[0]
     else:
         name  = "ND"
+    ref = re.sub(r'[\\/*?:"<>|]', "_", ref)
+    name = re.sub(r'[\\/*?:"<>|]', "_", name)
     return ref.strip(), name.strip()
 
 def pdf_to_excel(nome_pdf,excel_name,cliente):
