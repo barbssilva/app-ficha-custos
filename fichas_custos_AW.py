@@ -267,7 +267,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
                 custo_acessorio = pd.to_numeric(df_other_trims.iloc[i, -1], errors='coerce')
                 custo_acessorio1 = custo_acessorio * percent_value1
                 custo_acessorio2 = (custo_acessorio/percent_value2)-custo_acessorio
-                linha_inf.append(round(float(custo_acessorio1+custo_acessorio2 + qtd_adicionar,2))
+                linha_inf.append(round(float(custo_acessorio1+custo_acessorio2 + qtd_adicionar,2)))
                 linhas_excel.append(linha_inf)
 
 
