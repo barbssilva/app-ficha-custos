@@ -6,6 +6,7 @@ from openpyxl.styles import Alignment, Border, Side, Font
 import openpyxl
 import os
 import streamlit as st
+import re
 
 from openpyxl.drawing.image import Image as ExcelImage
 from PIL import Image
