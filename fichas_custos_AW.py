@@ -126,9 +126,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     else:
         margem_corte_idx = mask_margem_corte.idxmax()
         margem_corte_cost = pd.to_numeric(df2.iloc[margem_corte_idx, 2], errors='coerce')
-        margem_corte1 = margem_corte_cost * percent_value1
-        margem_corte2 = (margem_corte_cost/percent_value2)-margem_corte_cost
-        margem_corte_cost = margem_corte_cost + margem_corte1 + margem_corte2
+        margem_corte_cost = margem_corte_cost + ((1/percent_value2)+percent_value1)
 
     #valor que será dividido por Malhas, CMT, Artworks e Washing
     add_cost_div= margem_corte_cost + perc_acessorios
@@ -159,9 +157,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         cost = pd.to_numeric(df2.iloc[idx, 2], errors='coerce')
         if not pd.isna(cost):
             cmt_cost += cost
-    cmt_margem_cost1 = cmt_cost * percent_value1
-    cmt_margem_cost2 = (cmt_cost/percent_value2)-cmt_cost
-    cmt_margem_cost = cmt_cost+cmt_margem_cost1 + cmt_margem_cost2
+    cmt_margem_cost = cmt_cost+ ((1/percent_value2)+percent_value1)
 
     #considerar CMT e Malhas
     count += 2
@@ -229,18 +225,14 @@ def trim_excel_before_marker(excel_path,excel_saida):
             linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
             linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
             soma_malha=pd.to_numeric(df.iloc[malhas_indices[i]:malhas_indices[i+1], -1], errors='coerce').sum()
-            soma_malha1 = soma_malha * percent_value1
-            soma_malha2 = (soma_malha/percent_value2)-soma_malha
-            linha_inf.append(round(float(soma_malha+soma_malha1+soma_malha2+div_value_per_malha),2))  # preço após aplicar a margem e soma da parte dividida
+            linha_inf.append(round(float(soma_malha*((1/percent_value2)+percent_value1)+div_value_per_malha),2))  # preço após aplicar a margem e soma da parte dividida
             linhas_excel.append(linha_inf)
         else:
             linha_inf = []
             linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
             linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
             soma_malha=pd.to_numeric(df.iloc[malhas_indices[i]:ultima_linha+1, -1], errors='coerce').sum()
-            soma_malha1 = soma_malha * percent_value1
-            soma_malha2 = (soma_malha/percent_value2)-soma_malha
-            linha_inf.append(round(float(soma_malha+soma_malha1+soma_malha2+div_value_per_malha),2))# preço após aplicar a margem e soma da parte dividida
+            linha_inf.append(round(float(soma_malha*+ ((1/percent_value2)+percent_value1)+div_value_per_malha),2))# preço após aplicar a margem e soma da parte dividida
             linhas_excel.append(linha_inf)
 
     """
@@ -265,9 +257,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
                 linha_inf.append("")
                 linha_inf.append(df_other_trims.iloc[i,1]) #descritivo do acessorio
                 custo_acessorio = pd.to_numeric(df_other_trims.iloc[i, -1], errors='coerce')
-                custo_acessorio1 = custo_acessorio * percent_value1
-                custo_acessorio2 = (custo_acessorio/percent_value2)-custo_acessorio
-                linha_inf.append(round(float(custo_acessorio+custo_acessorio1+custo_acessorio2 + qtd_adicionar),2))
+                linha_inf.append(round(float(custo_acessorio*+ ((1/percent_value2)+percent_value1) + qtd_adicionar),2))
                 linhas_excel.append(linha_inf)
 
 
@@ -280,9 +270,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
             linha_inf.append(df3.iloc[i,0])  # codigo do artwork
             linha_inf.append(df3.iloc[i,1])  # artigo do artwork
             custo_artwork = pd.to_numeric(df3.iloc[i, -1], errors='coerce')
-            custo_artwork1 = custo_artwork * percent_value1
-            custo_artwork2 = (custo_artwork/percent_value2)-custo_artwork
-            linha_inf.append(round(float(custo_artwork+custo_artwork1+custo_artwork2+ qtd_adicionar),2))  # preço após aplicar a margem e soma da parte dividida 
+            linha_inf.append(round(float(custo_artwork*+ ((1/percent_value2)+percent_value1)+ qtd_adicionar),2))  # preço após aplicar a margem e soma da parte dividida 
             linhas_excel.append(linha_inf)
 
     #adicionar informação washing caso exista
@@ -293,9 +281,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
             linha_inf.append(df4.iloc[i,0])  # codigo do washing
             linha_inf.append(df4.iloc[i,1])  # artigo do washing
             custo_washing = pd.to_numeric(df4.iloc[i, -1], errors='coerce')
-            custo_washing1 = custo_washing * percent_value1
-            custo_washing2 = (custo_washing/percent_value2)-custo_washing
-            linha_inf.append(round(float(custo_washing+custo_washing1+custo_washing2 + qtd_adicionar_washing),2))  # preço após aplicar a margem e soma da parte dividida 
+            linha_inf.append(round(float(custo_washing*+ ((1/percent_value2)+percent_value1) + qtd_adicionar_washing),2))  # preço após aplicar a margem e soma da parte dividida 
             linhas_excel.append(linha_inf)
 
 
@@ -315,9 +301,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         if not pd.isna(cost):
             other_costs += cost
             
-    other_costs1 = other_costs * percent_value1
-    other_costs2 = (other_costs/percent_value2)-other_costs
-    other_costs_final = other_costs+other_costs1 + other_costs2
+    other_costs_final = other_costs+ ((1/percent_value2)+percent_value1)
 
     linhas_excel.append(["","Other",round(float(other_costs_final),2)])
 
