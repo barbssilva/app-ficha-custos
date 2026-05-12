@@ -104,7 +104,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
         linhas_nominated = []
         linhas_other_trims = []
         for i in range(0,len(df5)):
-            if df5.iloc[i,0] in codes_key:
+            codigo = df5.iloc[i,0]
+            if codigo.upper() in codes_key:
                 nominataded_acessorios_cost += pd.to_numeric(df5.iloc[i, -1], errors='coerce')
                 linhas_nominated.append(df5.iloc[i])
             else:
