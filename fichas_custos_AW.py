@@ -239,7 +239,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
     #adicionar informação acessorios
     if mask_acessorios.any():
-        if len(df_nominated)) != 0:
+        if len(df_nominated) != 0:
             for i in range(0,len(df_nominated)):
                 linha_inf=[]
                 linha_inf.append("CC") #para indicar que é nominated
