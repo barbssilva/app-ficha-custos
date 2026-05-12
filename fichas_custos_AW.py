@@ -248,7 +248,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
                 linhas_excel.append(linha_inf)
         if len(df_other_trims) != 0:
             qtd_adicionar = div_value/len(df_other_trims)
-            for i in range(0,len(df_other_trims):
+            for i in range(0,len(df_other_trims)):
                 linha_inf=[]
                 linha_inf.append("")
                 linha_inf.append(df_other_trims.iloc[i,1]) #descritivo do acessorio
