@@ -9,9 +9,10 @@ import os
 from io import BytesIO
 import zipfile
 
-st.title("Represent")
+st.title("Alexander Wang")
 
-from fichas_custos_excel_represent import trim_excel_before_marker, pdf_to_excel, add_images
+from fichas_custos_AW import trim_excel_before_marker
+from funcoes import pdf_to_excel, add_images
 
 st.write("Pode carregar vários ficheiros pdf de uma só vez, no fim fará download de um ficheiro .zip com todos os ficheiros excel")
 
