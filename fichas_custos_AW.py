@@ -126,7 +126,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     else:
         margem_corte_idx = mask_margem_corte.idxmax()
         margem_corte_cost = pd.to_numeric(df2.iloc[margem_corte_idx, 2], errors='coerce')
-        margem_corte_cost = margem_corte_cost*((1/percent_value2)+percent_value1)
+        margem_corte_cost = (margem_corte_cost/percent_value2)+(margem_corte_cost*percent_value1)
 
     #valor que será dividido por Malhas, CMT, Artworks e Washing
     add_cost_div= margem_corte_cost + perc_acessorios
@@ -157,7 +157,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         cost = pd.to_numeric(df2.iloc[idx, 2], errors='coerce')
         if not pd.isna(cost):
             cmt_cost += cost
-    cmt_margem_cost = cmt_cost*((1/percent_value2)+percent_value1)
+    cmt_margem_cost = (cmt_cost/percent_value2)+(cmt_cost*percent_value1)
 
     #considerar CMT e Malhas
     count += 2
@@ -301,7 +301,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         if not pd.isna(cost):
             other_costs += cost
             
-    other_costs_final = other_costs*((1/percent_value2)+percent_value1)
+    other_costs_final = other_costs*(1/percent_value2)+(percent_value1)
 
     linhas_excel.append(["","Other",round(float(other_costs_final),2)])
 
