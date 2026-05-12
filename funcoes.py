@@ -57,7 +57,6 @@ def extract_sections_from_text(text,cliente):
     ref = re.sub(r'[\\/*?:"<>|]', "_", ref)
     if len(ref)>30:
         ref = ref[:20]
-    name = re.sub(r'[\\/*?:"<>|]', "_", name)
     return ref.strip(), name.strip()
 
 def pdf_to_excel(nome_pdf,excel_name,cliente):
