@@ -55,6 +55,8 @@ def extract_sections_from_text(text,cliente):
     else:
         name  = "ND"
     ref = re.sub(r'[\\/*?:"<>|]', "_", ref)
+    if len(ref)>30:
+        ref = ref[:20]
     name = re.sub(r'[\\/*?:"<>|]', "_", name)
     return ref.strip(), name.strip()
 
