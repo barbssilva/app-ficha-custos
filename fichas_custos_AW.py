@@ -155,7 +155,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
         cost = pd.to_numeric(df2.iloc[idx, 2], errors='coerce')
         if not pd.isna(cost):
             cmt_cost += cost
-    cmt_margem_cost = (cmt_cost*(1+percent_value1))/percent_value2
+    cmt_com_margem = cmt_cost*(1+percent_value1)
+    cmt_margem_cost = cmt_com_margem/percent_value2
 
     #considerar CMT e Malhas
     count += 2
@@ -223,14 +224,16 @@ def trim_excel_before_marker(excel_path,excel_saida):
             linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
             linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
             soma_malha=pd.to_numeric(df.iloc[malhas_indices[i]:malhas_indices[i+1], -1], errors='coerce').sum()
-            linha_inf.append(round(float(((soma_malha*(1+percent_value1))/percent_value2)+div_value_per_malha),2))  # preço após aplicar a margem e soma da parte dividida
+            soma_malha_margem = soma_malha*(1+percent_value1)
+            linha_inf.append(round(float((soma_malha_margem/percent_value2)+div_value_per_malha),2))  # preço após aplicar a margem e soma da parte dividida
             linhas_excel.append(linha_inf)
         else:
             linha_inf = []
             linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
             linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
             soma_malha=pd.to_numeric(df.iloc[malhas_indices[i]:ultima_linha+1, -1], errors='coerce').sum()
-            linha_inf.append(round(float(((soma_malha*(1+percent_value1))/percent_value2)+div_value_per_malha),2))# preço após aplicar a margem e soma da parte dividida
+            soma_malha_margem = soma_malha*(1+percent_value1)
+            linha_inf.append(round(float((soma_malha_margem/percent_value2)+div_value_per_malha),2))# preço após aplicar a margem e soma da parte dividida
             linhas_excel.append(linha_inf)
 
     """
@@ -255,7 +258,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
                 linha_inf.append("")
                 linha_inf.append(df_other_trims.iloc[i,1]) #descritivo do acessorio
                 custo_acessorio = pd.to_numeric(df_other_trims.iloc[i, -1], errors='coerce')
-                linha_inf.append(round(float((custo_acessorio*(1+percent_value1))/percent_value2 + qtd_adicionar_acessorio),2))
+                custo_acessorio_margem = custo_acessorio*(1+percent_value1)
+                linha_inf.append(round(float((custo_acessorio_margem/percent_value2) + qtd_adicionar_acessorio),2))
                 linhas_excel.append(linha_inf)
 
 
@@ -268,7 +272,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
             linha_inf.append(df3.iloc[i,0])  # codigo do artwork
             linha_inf.append(df3.iloc[i,1])  # artigo do artwork
             custo_artwork = pd.to_numeric(df3.iloc[i, -1], errors='coerce')
-            linha_inf.append(round(float((custo_artwork*(1+percent_value1))/percent_value2+ qtd_adicionar),2))  # preço após aplicar a margem e soma da parte dividida 
+            custo_artwork_margem = custo_artwork*(1+percent_value1)
+            linha_inf.append(round(float((custo_artwork_margem/percent_value2)+ qtd_adicionar),2))  # preço após aplicar a margem e soma da parte dividida 
             linhas_excel.append(linha_inf)
 
     #adicionar informação washing caso exista
@@ -279,7 +284,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
             linha_inf.append(df4.iloc[i,0])  # codigo do washing
             linha_inf.append(df4.iloc[i,1])  # artigo do washing
             custo_washing = pd.to_numeric(df4.iloc[i, -1], errors='coerce')
-            linha_inf.append(round(float((custo_washing*(1+percent_value1))/percent_value2 + qtd_adicionar_washing),2))  # preço após aplicar a margem e soma da parte dividida 
+            custo_washing_margem = custo_washing*(1+percent_value1)
+            linha_inf.append(round(float((custo_washing_margem/percent_value2) + qtd_adicionar_washing),2))  # preço após aplicar a margem e soma da parte dividida 
             linhas_excel.append(linha_inf)
 
 
