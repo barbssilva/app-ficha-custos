@@ -89,8 +89,7 @@ def pdf_to_excel(nome_pdf,excel_name,cliente):
             mask4 = final_df.iloc[:, 0].str.strip().str.lower() == "ponto de control"
             mask5 = final_df.iloc[:, 0].str.strip().str.lower() == "acabamentos a peça"
 
-            if all(m.any() for m in (mask2, mask3, mask4)):
-                idx2 = mask2.idxmax()  # índice da primeira ocorrência de acessorios
+            if all(m.any() for m in (mask3, mask4)):
                 idx3 = mask3.idxmax()  # índice da primeira ocorrência de malhas e tecidos
                 idx4 = mask4.idxmax()  # índice da primeira ocorrência de ponto de control
 
@@ -119,76 +118,139 @@ def pdf_to_excel(nome_pdf,excel_name,cliente):
                 # Remover colunas vazias
                 page_3_df = page_3_df.drop(columns=colunas_para_remover3)
 
-                """
-                inf acessorios
-                """
-                page_5_df = final_df.iloc[idx2+1:idx3, :]
-                # Identificar valores none
-                page_5_df = limpar_linhas_vazias(page_5_df)
-
-
-                if mask.any() and mask5.any():
-                    idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
-                    idx5 = mask5.idxmax()   # índice da primeira ocorrência de acabamentos a peça
-
+                if mask2.any():
                     """
-                    inf bordados e estampados
+                    inf acessorios
                     """
-                    page_1_df = final_df.iloc[idx+1:idx2, :]
+                    idx2 = mask2.idxmax()  # índice da primeira ocorrência de acessorios
+                    page_5_df = final_df.iloc[idx2+1:idx3, :]
                     # Identificar valores none
-                    page_1_df = limpar_linhas_vazias(page_1_df)
+                    page_5_df = limpar_linhas_vazias(page_5_df)
 
 
-                    """
-                    inf acabementos à peça
-                    """
-                    page_4_df = final_df.iloc[idx5+1:idx, :]
-                    # Identificar valores none
-                    page_4_df = limpar_linhas_vazias(page_4_df)
-
-                elif mask5.any() and not mask.any():
-                    idx5 = mask5.idxmax()   # índice da primeira ocorrência de acabamentos a peça
-
-                    """
-                    inf bordados e estampados
-                    """
-                    page_1_df = pd.DataFrame()  # DataFrame vazio para bordados e estampados, já que não existe essa secção
-
-                    """
-                    inf acabementos à peça
-                    """
-                    page_4_df = final_df.iloc[idx5+1:idx2, :]
-                    # Identificar valores none
-                    page_4_df = limpar_linhas_vazias(page_4_df)
-                
-                elif mask.any() and not mask5.any():
-                    idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
-
-                    """
-                    inf bordados e estampados
-                    """
-                    page_1_df = final_df.iloc[idx+1:idx2, :]
-                    # Identificar valores none
-                    page_1_df = limpar_linhas_vazias(page_1_df)
-
-                    """
-                    inf acabementos à peça
-                    """
-                    page_4_df = pd.DataFrame()  # DataFrame vazio para acabamentos à peça, já que não existe essa secção
-                elif not mask.any() and not mask5.any():
-                    #se não tiver bordados nem acabamentos à peça
-                    """
-                    inf bordados e estampados
-                    """
-                    page_1_df = pd.DataFrame()
-                    """
-                    inf acabementos à peça
-                    """
-                    page_4_df = pd.DataFrame()  # DataFrame vazio para acabamentos à peça, já que não existe essa secção
+                    if mask.any() and mask5.any():
+                        idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
+                        idx5 = mask5.idxmax()   # índice da primeira ocorrência de acabamentos a peça
+    
+                        """
+                        inf bordados e estampados
+                        """
+                        page_1_df = final_df.iloc[idx+1:idx2, :]
+                        # Identificar valores none
+                        page_1_df = limpar_linhas_vazias(page_1_df)
+    
+    
+                        """
+                        inf acabementos à peça
+                        """
+                        page_4_df = final_df.iloc[idx5+1:idx, :]
+                        # Identificar valores none
+                        page_4_df = limpar_linhas_vazias(page_4_df)
+    
+                    elif mask5.any() and not mask.any():
+                        idx5 = mask5.idxmax()   # índice da primeira ocorrência de acabamentos a peça
+    
+                        """
+                        inf bordados e estampados
+                        """
+                        page_1_df = pd.DataFrame()  # DataFrame vazio para bordados e estampados, já que não existe essa secção
+    
+                        """
+                        inf acabementos à peça
+                        """
+                        page_4_df = final_df.iloc[idx5+1:idx2, :]
+                        # Identificar valores none
+                        page_4_df = limpar_linhas_vazias(page_4_df)
+                    
+                    elif mask.any() and not mask5.any():
+                        idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
+    
+                        """
+                        inf bordados e estampados
+                        """
+                        page_1_df = final_df.iloc[idx+1:idx2, :]
+                        # Identificar valores none
+                        page_1_df = limpar_linhas_vazias(page_1_df)
+    
+                        """
+                        inf acabementos à peça
+                        """
+                        page_4_df = pd.DataFrame()  # DataFrame vazio para acabamentos à peça, já que não existe essa secção
+                    elif not mask.any() and not mask5.any():
+                        #se não tiver bordados nem acabamentos à peça
+                        """
+                        inf bordados e estampados
+                        """
+                        page_1_df = pd.DataFrame()
+                        """
+                        inf acabementos à peça
+                        """
+                        page_4_df = pd.DataFrame()  # DataFrame vazio para acabamentos à peça, já que não existe essa secção
+                else:
+                    page_5_df = pd.DataFrame()  # DataFrame vazio para acessorios, já que não existe essa secção
+                    
+                    if mask.any() and mask5.any():
+                        idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
+                        idx5 = mask5.idxmax()   # índice da primeira ocorrência de acabamentos a peça
+    
+                        """
+                        inf bordados e estampados
+                        """
+                        page_1_df = final_df.iloc[idx+1:idx3, :]
+                        # Identificar valores none
+                        page_1_df = limpar_linhas_vazias(page_1_df)
+    
+    
+                        """
+                        inf acabamentos à peça
+                        """
+                        page_4_df = final_df.iloc[idx5+1:idx, :]
+                        # Identificar valores none
+                        page_4_df = limpar_linhas_vazias(page_4_df)
+    
+                    elif mask5.any() and not mask.any():
+                        idx5 = mask5.idxmax()   # índice da primeira ocorrência de acabamentos a peça
+    
+                        """
+                        inf bordados e estampados
+                        """
+                        page_1_df = pd.DataFrame()  # DataFrame vazio para bordados e estampados, já que não existe essa secção
+    
+                        """
+                        inf acabementos à peça
+                        """
+                        page_4_df = final_df.iloc[idx5+1:idx3, :]
+                        # Identificar valores none
+                        page_4_df = limpar_linhas_vazias(page_4_df)
+                    
+                    elif mask.any() and not mask5.any():
+                        idx = mask.idxmax()  # índice da primeira ocorrência de bordados e estampados
+    
+                        """
+                        inf bordados e estampados
+                        """
+                        page_1_df = final_df.iloc[idx+1:idx3, :]
+                        # Identificar valores none
+                        page_1_df = limpar_linhas_vazias(page_1_df)
+    
+                        """
+                        inf acabementos à peça
+                        """
+                        page_4_df = pd.DataFrame()  # DataFrame vazio para acabamentos à peça, já que não existe essa secção
+                    elif not mask.any() and not mask5.any():
+                        #se não tiver bordados nem acabamentos à peça
+                        """
+                        inf bordados e estampados
+                        """
+                        page_1_df = pd.DataFrame()
+                        """
+                        inf acabementos à peça
+                        """
+                        page_4_df = pd.DataFrame()  # DataFrame vazio para acabamentos à peça, já que não existe essa secção
+                    
 
             else:
                 missing = [name for name, m in (("malhas e tecidos", mask3),
-                                                ("acessorios", mask2),
                                                 ("ponto de control", mask4)) if not m.any()]
                 raise ValueError(f"Faltam secções obrigatórias: {', '.join(missing)}")
 
