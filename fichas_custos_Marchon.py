@@ -193,16 +193,20 @@ def trim_excel_before_marker(excel_path,excel_saida):
 
     #adicionar informação acessorios
     if mask_acessorios.any():
-        qtd_adicionar_acessorio = div_value/len(df_other_trims)
-        for i in range(0,len(df_other_trims)):
+        #sheet que contem os acessorios descriminados
+        sheet5_name = list(sheets.keys())[4]
+        #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
+        df5 = sheets[sheet5_name].fillna('').astype(str)
+        
+        qtd_adicionar_acessorio = div_value/len(df5)
+        for i in range(0,len(df5)):
             linha_inf=[]
-            linha_inf.append("")
-            linha_inf.append(df_other_trims.iloc[i,1]) #descritivo do acessorio
-            custo_acessorio = pd.to_numeric(df_other_trims.iloc[i, -1], errors='coerce')
-            custo_acessorio_margem = custo_acessorio*(1+percent_value1)
-            linha_inf.append(round(float((custo_acessorio_margem/percent_value2) + qtd_adicionar_acessorio),2))
+            linha_inf.append(df5.iloc[i,0]) #codigo acessorio
+            linha_inf.append(df5.iloc[i,1]) #descritivo do acessorio
+            custo_acessorio = pd.to_numeric(df5.iloc[i, -1], errors='coerce')
+            custo_acessorio_margem = custo_acessorio*(1+percent_value)
+            linha_inf.append(round(float(custo_acessorio_margem + qtd_adicionar_acessorio),2))
             linhas_excel.append(linha_inf)
-
 
     #adicionar informação artworks
     #o valor a adicionar aos artworks será div_value mais o desconto-(dividido pela quantidade de artworks)
