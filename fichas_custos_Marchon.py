@@ -117,6 +117,16 @@ def trim_excel_before_marker(excel_path,excel_saida):
     else:
         descontos_idx = mask_descontos.idxmax()
         descontos_cost = pd.to_numeric(df2.iloc[descontos_idx, 2], errors='coerce')
+
+    marker_custos_desenvolvimento = "Custos de Desenvolvimento"
+    mask_custos_desenvolvimento = first_col2.eq(marker_descontos.lower())
+    if not mask_custos_desenvolvimento.any():
+        custos_desenvolvimento_cost=0
+    else:
+        custos_desenvolvimento_idx = mask_custos_desenvolvimento.idxmax()
+        custos_desenvolvimento_cost = pd.to_numeric(df2.iloc[custos_desenvolvimento_idx, 2], errors='coerce')
+
+    
     
     marker_artworks = "Bord./Est. (Animações)"
     mask_artworks = first_col2.eq(marker_artworks.lower())
@@ -129,7 +139,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
         #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
         df3 = sheets[primeiro_sheet_name].fillna('').astype(str)
         #valor do desconto que será adicionado a cada artwork
-        desconte_add = descontos_cost / len(df3)
+        add_artworks = (descontos_cost + custos_desenvolvimento_cost) / len(df3)
 
     # washing
     marker_washing = "Acabamentos a Peça"
@@ -205,7 +215,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     #adicionar informação artworks
     #o valor a adicionar aos artworks será div_value mais o desconto-(dividido pela quantidade de artworks)
     if mask_artworks.any():
-        qtd_adicionar  = (div_value/len(df3))+desconte_add
+        qtd_adicionar  = (div_value/len(df3))+add_artworks
         for i in range(0,len(df3)):
             linha_inf = []
             linha_inf.append(df3.iloc[i,0])  # codigo do artwork
