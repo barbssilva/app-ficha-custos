@@ -57,8 +57,6 @@ def trim_excel_before_marker(excel_path,excel_saida):
     """
     CALCULAR VALOR A DISTRIBUIR
     """
-    # para contar quantos componentes terei que DISTRIBUIR por Acessorios, CMT, malhas, artworks, washing
-    count = 0
         
     #margem corte
     marker_margem_corte = "Margem Corte"
@@ -77,11 +75,6 @@ def trim_excel_before_marker(excel_path,excel_saida):
     FIM - CALCULAR VALOR A DISTRIBUIR
     """
 
-    # acessorios
-    marker_acessorios = "Acessorios"
-    mask_acessorios = first_col2.eq(marker_acessorios.lower())
-    if mask_acessorios.any():
-        count += 1
     
     """
     CALCULAR CMT
@@ -106,9 +99,15 @@ def trim_excel_before_marker(excel_path,excel_saida):
         if not pd.isna(cost):
             cmt_cost += cost
     cmt_margem_cost = cmt_cost*(1+percent_value)
+    
+    # para contar quantos componentes terei que DISTRIBUIR por Acessorios, CMT, malhas, artworks, washing
+    count += 2 #CMT e Malhas
 
-    #considerar CMT e Malhas
-    count += 2
+    # acessorios
+    marker_acessorios = "Acessorios"
+    mask_acessorios = first_col2.eq(marker_acessorios.lower())
+    if mask_acessorios.any():
+        count += 1
 
     # artworks
     marker_descontos = "Desconto"
@@ -168,22 +167,17 @@ def trim_excel_before_marker(excel_path,excel_saida):
     for i in range(0,num_malhas):
         #valor a adicionar a cada uma das malhas
         div_value_per_malha = div_value/num_malhas
+        linha_inf = []
+        linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
+        linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
         if i < num_malhas-1:
-            linha_inf = []
-            linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
-            linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
             soma_malha=pd.to_numeric(df.iloc[malhas_indices[i]:malhas_indices[i+1], -1], errors='coerce').sum()
-            soma_malha_margem = soma_malha*(1+percent_value)
-            linha_inf.append(round(float(soma_malha_margem+div_value_per_malha),2))  # preço após aplicar a margem e soma da parte dividida
-            linhas_excel.append(linha_inf)
         else:
-            linha_inf = []
-            linha_inf.append(df.iloc[malhas_indices[i],0])  # codigo da malha
-            linha_inf.append(f"{df.iloc[malhas_indices[i],1]}")  # artigo da malha
             soma_malha=pd.to_numeric(df.iloc[malhas_indices[i]:ultima_linha+1, -1], errors='coerce').sum()
-            soma_malha_margem = soma_malha*(1+percent_value)
-            linha_inf.append(round(float(soma_malha_margem+div_value_per_malha),2))# preço após aplicar a margem e soma da parte dividida
-            linhas_excel.append(linha_inf)
+        soma_malha_margem = soma_malha*(1+percent_value)
+        linha_inf.append(round(float(soma_malha_margem+div_value_per_malha),2))  # preço após aplicar a margem e soma da parte dividida
+        linhas_excel.append(linha_inf)
+ 
 
     """
     ADICIONAR INFORMAÇÃO
