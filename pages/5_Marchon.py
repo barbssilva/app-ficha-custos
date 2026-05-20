@@ -9,9 +9,9 @@ import os
 from io import BytesIO
 import zipfile
 
-st.title("Alexander Wang")
+st.title("Marchon")
 
-from fichas_custos_AW import trim_excel_before_marker
+from fichas_custos_Marchon import trim_excel_before_marker
 from funcoes import pdf_to_excel, add_images
 
 st.write("Pode carregar vários ficheiros pdf de uma só vez, no fim fará download de um ficheiro .zip com todos os ficheiros excel")
@@ -45,7 +45,7 @@ if uploaded_files:
             placeholder = st.empty()
             placeholder.info("⏳ Por favor aguarde...")
 
-            cliente = "Alexander Wang LLC"
+            cliente = "MARCHON APPAREL LTD"
             ref_text, name_text = pdf_to_excel(temp_pdf_path,excel_entrada,cliente)
             inf_texto = [f"Ref: {ref_text}",name_text]
             excel_saida = os.path.join(temp_dir,f"tabela_custos_{ref_text}.xlsx")
