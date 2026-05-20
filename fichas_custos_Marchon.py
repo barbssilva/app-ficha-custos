@@ -125,6 +125,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     else:
         custos_desenvolvimento_idx = mask_custos_desenvolvimento.idxmax()
         custos_desenvolvimento_cost = pd.to_numeric(df2.iloc[custos_desenvolvimento_idx, 2], errors='coerce')
+        custos_desenvolvimento_cost=custos_desenvolvimento_cost*(1+percent_value)
 
     
     
