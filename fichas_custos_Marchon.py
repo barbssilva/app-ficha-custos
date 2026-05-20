@@ -118,8 +118,8 @@ def trim_excel_before_marker(excel_path,excel_saida):
         descontos_idx = mask_descontos.idxmax()
         descontos_cost = pd.to_numeric(df2.iloc[descontos_idx, 2], errors='coerce')
 
-    marker_custos_desenvolvimento = "Custos de Desenvolvimento"
-    mask_custos_desenvolvimento = first_col2.eq(marker_descontos.lower())
+    marker_custos_desenvolvimento = "custos de"
+    mask_custos_desenvolvimento = first_col2.str.contains(marker_custos_desenvolvimento,case=False,na=False)
     if not mask_custos_desenvolvimento.any():
         custos_desenvolvimento_cost=0
     else:
