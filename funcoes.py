@@ -110,7 +110,7 @@ def pdf_to_excel(nome_pdf,excel_name,cliente):
                 page_3_df = final_df.iloc[idx4+1:, :]
                 #escolher apenas linhas que tenham apenas as operações até desconto
                 col_opere = page_3_df.iloc[:, 0].str.strip().str.lower()
-                mask_opere = (col_opere == 'acessorios')| (col_opere == 'malhas e tecidos') | (col_opere == 'malha tinturaria') | (col_opere == 'corte') | (col_opere == 'bord./est. (animações)') | (col_opere == 'confecção') | (col_opere == 'embalamento') | (col_opere == 'linhas') | (col_opere == 'desconto') | (col_opere == 'acabamentos a peça') | (col_opere == 'gastos gerais') | (col_opere == 'transporte')| (col_opere == 'margem corte') | (col_opere == 'comissão')| (col_opere == 'margem')|(col_opere.str.contains('custos de', case=False, na=False)
+                mask_opere = (col_opere == 'acessorios')| (col_opere == 'malhas e tecidos') | (col_opere == 'malha tinturaria') | (col_opere == 'corte') | (col_opere == 'bord./est. (animações)') | (col_opere == 'confecção') | (col_opere == 'embalamento') | (col_opere == 'linhas') | (col_opere == 'desconto') | (col_opere == 'acabamentos a peça') | (col_opere == 'gastos gerais') | (col_opere == 'transporte')| (col_opere == 'margem corte') | (col_opere == 'comissão')| (col_opere == 'margem')|(col_opere.str.contains('custos de', case=False, na=False))
                 page_3_df = page_3_df[mask_opere].reset_index(drop=True)
 
                 # Identificar colunas totalmente vazias
