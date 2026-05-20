@@ -101,7 +101,7 @@ def trim_excel_before_marker(excel_path,excel_saida):
     cmt_margem_cost = cmt_cost*(1+percent_value)
     
     # para contar quantos componentes terei que DISTRIBUIR por Acessorios, CMT, malhas, artworks, washing
-    count += 2 #CMT e Malhas
+    count = 2 #CMT e Malhas
 
     # acessorios
     marker_acessorios = "Acessorios"
