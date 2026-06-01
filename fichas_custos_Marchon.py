@@ -108,6 +108,9 @@ def trim_excel_before_marker(excel_path,excel_saida):
     mask_acessorios = first_col2.eq(marker_acessorios.lower())
     if mask_acessorios.any():
         count += 1
+        margem_acessorios_idx = mask_acessorios.idxmax()
+        margem_acessorios = pd.to_numeric(df2.iloc[margem_acessorios_idx, 2], errors='coerce')
+        margem_acessorios = margem_acessorios*(1+percent_value)
 
     # artworks
     marker_descontos = "Desconto"
@@ -197,23 +200,24 @@ def trim_excel_before_marker(excel_path,excel_saida):
     linhas_excel.append(["","CMT", round(float(cmt_margem_cost + div_value),2)])
 
     #adicionar informação acessorios
-    if mask_acessorios.any():
-        #sheet que contem os acessorios descriminados
-        sheet5_name = list(sheets.keys())[4]
-        #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
-        df5 = sheets[sheet5_name].fillna('').astype(str)
+    linhas_excel.append(["","Trims", round(float(margem_acessorios + div_value),2)])
+    #if mask_acessorios.any():
+     #   #sheet que contem os acessorios descriminados
+     #   sheet5_name = list(sheets.keys())[4]
+      #  #garante que todos os valores são string e sem NaN (substitui NaN pela string "")
+      #  df5 = sheets[sheet5_name].fillna('').astype(str)
         
-        qtd_adicionar_acessorio = div_value/len(df5)
-        for i in range(0,len(df5)):
-            linha_inf=[]
-            linha_inf.append(df5.iloc[i,0]) #codigo acessorio
-            linha_inf.append(df5.iloc[i,1]) #descritivo do acessorio
-            custo_acessorio = pd.to_numeric(df5.iloc[i, -1], errors='coerce')
-            custo_acessorio_margem = custo_acessorio*(1+percent_value)
-            linha_inf.append(round(float(custo_acessorio_margem + qtd_adicionar_acessorio),2))
-            linhas_excel.append(linha_inf)
+      #  qtd_adicionar_acessorio = div_value/len(df5)
+      #  for i in range(0,len(df5)):
+       #     linha_inf=[]
+       #     linha_inf.append(df5.iloc[i,0]) #codigo acessorio
+        #    linha_inf.append(df5.iloc[i,1]) #descritivo do acessorio
+        #    custo_acessorio = pd.to_numeric(df5.iloc[i, -1], errors='coerce')
+        #    custo_acessorio_margem = custo_acessorio*(1+percent_value)
+        #    linha_inf.append(round(float(custo_acessorio_margem + qtd_adicionar_acessorio),2))
+        #    linhas_excel.append(linha_inf)
 
-    #adicionar informação artworks
+    #adicionar informação artworks (bordados)
     #o valor a adicionar aos artworks será div_value mais o desconto-(dividido pela quantidade de artworks)
     if mask_artworks.any():
         qtd_adicionar  = (div_value/len(df3))+add_artworks
