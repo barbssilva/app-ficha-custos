@@ -11,7 +11,7 @@ import zipfile
 
 st.title("SLAM JAM - MENTAL ATLETIC")
 
-from fichas_custos_excel_represent import trim_excel_before_marker, pdf_to_excel, add_images
+from fichas_custos_excel_slj_mental_atletic import trim_excel_before_marker, pdf_to_excel, add_images
 
 st.write("Pode carregar vários ficheiros pdf de uma só vez, no fim fará download de um ficheiro .zip com todos os ficheiros excel")
 
