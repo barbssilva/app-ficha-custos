@@ -12,6 +12,11 @@ from openpyxl.drawing.image import Image as ExcelImage
 from PIL import Image
 import io
 
+from copy import copy
+from openpyxl import Workbook, load_workbook
+from openpyxl.cell.cell import MergedCell
+from openpyxl.drawing.image import Image as XLImage
+
 '''
 A função pdf_to_excel lê o ficheiro pdf e converte-o para um ficheiro excel
 As páginas de pdf que são convertidas para excel são aquelas que contém tabelas com medidas
@@ -327,3 +332,31 @@ def add_images(pdf_path,excel_path,inf_texto):
     # Remover os ficheiros das imagens após inserir no Excel
     for img_path in image_paths:
         os.remove(img_path)
+
+#outras funções
+def copiar_sheet(ws_origem, ws_destino):
+    # Copia valores e formatação
+    for row in ws_origem.iter_rows():
+        for cell in row:
+            if isinstance(cell, MergedCell):
+                continue
+            nova = ws_destino.cell(row=cell.row, column=cell.column, value=cell.value)
+            if cell.has_style:
+                nova.font = copy(cell.font)
+                nova.border = copy(cell.border)
+                nova.fill = copy(cell.fill)
+                nova.number_format = cell.number_format
+                nova.alignment = copy(cell.alignment)
+    # Copia células unidas, larguras e alturas
+    for rng in ws_origem.merged_cells.ranges:
+        ws_destino.merge_cells(str(rng))
+    for k, d in ws_origem.column_dimensions.items():
+        ws_destino.column_dimensions[k].width = d.width
+    for k, d in ws_origem.row_dimensions.items():
+        ws_destino.row_dimensions[k].height = d.height
+    # Copia imagens
+    for img in ws_origem._images:
+        nova_img = XLImage(BytesIO(img._data()))
+        nova_img.anchor = img.anchor
+        nova_img.width, nova_img.height = img.width, img.height
+        ws_destino.add_image(nova_img)
