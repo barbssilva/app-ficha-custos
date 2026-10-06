@@ -13,7 +13,7 @@ st.title("SLAM JAM - MENTAL ATLETIC")
 
 from fichas_custos_excel_slj_mental_atletic import trim_excel_before_marker, pdf_to_excel, add_images
 
-st.write("Pode carregar vários ficheiros pdf de uma só vez, no fim fará download de um ficheiro .zip com todos os ficheiros excel")
+st.write("Pode carregar vários ficheiros pdf de uma só vez, no fim terá um excel com uma tabela de custos por página")
 
 uploaded_files = st.file_uploader(
     "Por favor, carregue os ficheiros pdf.",
