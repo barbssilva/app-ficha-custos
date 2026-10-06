@@ -16,6 +16,7 @@ from copy import copy
 from openpyxl import Workbook, load_workbook
 from openpyxl.cell.cell import MergedCell
 from openpyxl.drawing.image import Image as XLImage
+from io import BytesIO
 
 '''
 A função pdf_to_excel lê o ficheiro pdf e converte-o para um ficheiro excel
