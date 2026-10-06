@@ -85,7 +85,8 @@ if uploaded_files:
             excel_entrada = os.path.join(temp_dir, base_name + ".xlsx")
 
             # Processamento (igual ao que tinhas)
-            ref_text, name_text = pdf_to_excel(temp_pdf_path, excel_entrada)
+            cliente = "Alexander Wang LLC"
+            ref_text, name_text = pdf_to_excel(temp_pdf_path, excel_entrada,cliente)
             inf_texto = [f"Ref: {ref_text}", name_text]
             excel_saida = os.path.join(temp_dir, f"tabela_custos_{ref_text}.xlsx")
 
