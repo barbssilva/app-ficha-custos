@@ -121,7 +121,7 @@ if uploaded_files:
             st.success("Todos os ficheiros foram processados!")
     
             st.download_button(
-                label="Descarregar Excel Processado",
+                label="Descarregar Excel Processado - ficheiro único com todas as tabelas de custos",
                 data=excel_buffer,
                 file_name="ficheiros_processados.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -131,7 +131,7 @@ if uploaded_files:
             zip_file.close()
         
             st.download_button(
-                label="Descarregar zip - com ficheiros separados",
+                label="Descarregar zip - com tabelas de custos em ficheiros separados",
                 data=zip_buffer,
                 file_name="ficheiros_processados.zip",
                 mime="application/zip"
