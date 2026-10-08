@@ -131,7 +131,7 @@ if uploaded_files:
             zip_file.close()
         
             st.download_button(
-                label="Descarregar zip - com tabelas de custos em ficheiros separados",
+                label="Descarregar zip com tabelas de custos em ficheiros separados",
                 data=zip_buffer,
                 file_name="ficheiros_processados.zip",
                 mime="application/zip"
