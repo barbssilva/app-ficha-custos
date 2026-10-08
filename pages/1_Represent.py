@@ -65,11 +65,18 @@ if uploaded_files:
     else:
         placeholder = st.empty()
         placeholder.info("⏳ A processar ficheiros...")
+
+
+        #para zip
+        zip_buffer = BytesIO()
         
-         # Excel final, onde cada ficheiro vai ser uma sheet
+        # Excel final, onde cada ficheiro vai ser uma sheet
         wb_final = Workbook()
         wb_final.remove(wb_final.active)  # remove a sheet vazia que vem por defeito
 
+        #para zip
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            
         for uploaded_file in uploaded_files:
 
             base_name = os.path.splitext(uploaded_file.name)[0]
@@ -89,6 +96,9 @@ if uploaded_files:
 
             trim_excel_before_marker(excel_entrada, excel_saida)
             add_images(temp_pdf_path, excel_saida, inf_texto)
+
+             # Adicionar ao ZIP
+            zip_file.write(excel_saida, os.path.basename(excel_saida))
 
             # Em vez de adicionar ao ZIP, copia para uma nova sheet
             wb_origem = load_workbook(excel_saida)
@@ -116,48 +126,12 @@ if uploaded_files:
             file_name="ficheiros_processados.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
+        zip_buffer.seek(0)
     
-        #zip_buffer = BytesIO()
-    
-       # with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-    
-        #    for uploaded_file in uploaded_files:
-    
-         #       base_name = os.path.splitext(uploaded_file.name)[0]
-    
-                # Criar PDF temporário
-          #      with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
-           #         temp_pdf.write(uploaded_file.read())
-            #        temp_pdf_path = temp_pdf.name
-    
-             #   temp_dir = os.path.dirname(temp_pdf_path)
-              #  excel_entrada = os.path.join(temp_dir, base_name + ".xlsx")
-               # #excel_saida = os.path.join(temp_dir, base_name + "_processado.xlsx")
-    
-                # Processamento
-                #ref_text, name_text = pdf_to_excel(temp_pdf_path, excel_entrada)
-                #inf_texto = [f"Ref: {ref_text}", name_text]
-                #excel_saida = os.path.join(temp_dir,f"tabela_custos_{ref_text}.xlsx")
-    
-             #   trim_excel_before_marker(excel_entrada, excel_saida)
-             #   add_images(temp_pdf_path, excel_saida, inf_texto)
-    
-                # Adicionar ao ZIP
-              #  zip_file.write(excel_saida, os.path.basename(excel_saida))
-    
-                # Limpeza
-               # os.remove(excel_entrada)
-               # os.remove(excel_saida)
-               # os.remove(temp_pdf_path)
-    
-        #placeholder.empty()
-        #st.success("Todos os ficheiros foram processados!")
-    
-        #zip_buffer.seek(0)
-    
-        #st.download_button(
-        #    label="Descarregar todos os ficheiros",
-         #   data=zip_buffer,
-          #  file_name="ficheiros_processados.zip",
-           # mime="application/zip"
-        #)
+        st.download_button(
+            label="Descarregar zip - com ficheiros separados",
+            data=zip_buffer,
+            file_name="ficheiros_processados.zip",
+            mime="application/zip"
+        )
