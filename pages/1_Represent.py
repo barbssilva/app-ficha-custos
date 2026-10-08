@@ -128,6 +128,7 @@ if uploaded_files:
             )
     
             zip_buffer.seek(0)
+            zip_file.close()
         
             st.download_button(
                 label="Descarregar zip - com ficheiros separados",
